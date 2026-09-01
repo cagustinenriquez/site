@@ -16,48 +16,69 @@ import BlogEditor from './pages/BlogEditor'
 import Login from './pages/Login'
 import { Navbar } from './components/Navbar'
 
-const projects = [
+const schools = [
   {
-    title: 'Backend architecture',
-    summary:
-      'Scalable backend platforms, high-throughput APIs, and cloud-native services built with Python and a strong focus on maintainability.',
-    meta: 'Python, Django, Flask, FastAPI',
+    icon: '🐍',
+    title: 'Python sorcery',
+    summary: 'Django, Flask, FastAPI, async, multiprocessing, data processing, Pandas/Polars.',
   },
   {
-    title: 'Data-intensive systems',
-    summary:
-      'ETLs, database-heavy applications, and performance work across PostgreSQL, DynamoDB, and production delivery pipelines.',
-    meta: 'PostgreSQL, DynamoDB, ETLs',
+    icon: '☁️',
+    title: 'Cloud alchemy',
+    summary: 'AWS, S3, Lambda, Step Functions, RDS, IAM, queues and event-driven systems.',
   },
   {
-    title: 'Engineering workflow',
-    summary:
-      'Readable code, profiling, CI pipelines, testing discipline, and pragmatic decisions that help teams ship on time.',
-    meta: 'TDD, CI, profiling, Agile',
+    icon: '🧱',
+    title: 'Container necromancy',
+    summary: 'Docker, Kubernetes, Terraform, deployments that somehow work despite nobody completely understanding why.',
   },
-] as const
-
-const process = [
-  'Design systems around clear architecture, performance, and long-term maintainability.',
-  'Build with Python-first tools and keep delivery pragmatic and cloud-native.',
-  'Share practical notes from real engineering work, not abstract theory.',
+  {
+    icon: '📨',
+    title: 'Message-passing mysticism',
+    summary: 'Kafka, RabbitMQ, SQS, WebSockets, real-time processing.',
+  },
+  {
+    icon: '🧠',
+    title: 'AI summoning',
+    summary: 'RAG, agents, LLM APIs, MCP, vector databases, LLM evaluation.',
+  },
+  {
+    icon: '🏦',
+    title: 'Financial dark arts',
+    summary: 'Loan risk, fraud/AML processes, direct debits, millions of financial records.',
+  },
+  {
+    icon: '🎛️',
+    title: 'DAW wizardry',
+    summary: 'REAPER + Lua + FastAPI + an AI agent that actually manipulates tracks.',
+  },
+  {
+    icon: '🔌',
+    title: '"Let\'s just connect it" engineering',
+    summary: 'Bluetooth/Wi-Fi detection, OCR, external systems, APIs, legacy enterprise software.',
+  },
+  {
+    icon: '🩹',
+    title: 'Production archaeology',
+    summary: 'Taking an existing system nobody wants to touch and figuring out why the hell it works.',
+  },
 ] as const
 
 const faq = [
   {
-    question: 'Why keep the site static?',
+    question: 'Why the technovoodoo branding?',
     answer:
-      'A static site keeps the blog fast, simple to deploy, and easy to maintain while the focus stays on content and engineering work.',
+      'Because "Software Engineer" is boring, and most of what happens in production feels like magic anyway. Might as well lean into it.',
   },
   {
-    question: 'What do I work with most?',
+    question: 'So you actually know what you\'re doing, or...?',
     answer:
-      'Python, Django, Flask, FastAPI, JavaScript, Vue.js, PostgreSQL, DynamoDB, Docker, AWS, REST APIs, and ETL workflows.',
+      'Mostly. 10+ years of production systems, 10 billion+ records, millions in financial transactions. The API jokes are real, the wins are real, the production archaeology is very real.',
   },
   {
-    question: 'What is the core engineering philosophy here?',
+    question: 'Why Python, AWS, Docker, and "questionable persistence"?',
     answer:
-      'Simple is better than complex. Keep code readable, follow solid engineering practices, profile real bottlenecks, and ship maintainable systems.',
+      'Python is readable and gets stuff done. AWS scales without breaking. Docker makes deployments less terrifying. And "questionable persistence" is a fancy way of saying I\'ve built systems that work despite architectural decisions that made architects cry.',
   },
 ] as const
 
@@ -79,12 +100,11 @@ function HomePage() {
 
           <div className="hero-grid">
             <div className="hero-copy">
-              <p className="section-kicker">Agustin Enriquez Python Developer Blog</p>
-              <h1>Software Python engineer building scalable backend platforms and high-throughput APIs.</h1>
+              <p className="section-kicker">🧙 Personal Technovoodoo</p>
+              <h1>Give me a messy real-world problem and enough Python, and I'll eventually make it an API.</h1>
               <p className="lede">
-                Software engineer with 10+ years building scalable backend platforms,
-                high-throughput APIs, and data-intensive systems with a strong focus on
-                architecture, performance optimization, and cloud-native delivery.
+                10+ years of summoning solutions from Python, AWS, Docker, and questionable persistence.
+                Backend sorcery, cloud alchemy, and the occasional dark arts involving financial records and DAW automation.
               </p>
 
               <div className="hero-actions">
@@ -112,16 +132,16 @@ function HomePage() {
 
         <section className="band" id="work">
           <div className="section-heading">
-            <p className="section-kicker">Core strengths</p>
-            <h2>Backend systems, performance work, and Python-first delivery.</h2>
+            <p className="section-kicker">Schools of Sorcery</p>
+            <h2>The various arcane arts and dark magic in the arsenal.</h2>
           </div>
 
           <div className="project-grid">
-            {projects.map((project) => (
-              <article className="project-card" key={project.title}>
-                <p className="project-meta">{project.meta}</p>
-                <h3>{project.title}</h3>
-                <p>{project.summary}</p>
+            {schools.map((school) => (
+              <article className="project-card" key={school.title}>
+                <p className="project-meta" style={{ fontSize: '1.5rem' }}>{school.icon}</p>
+                <h3>{school.title}</h3>
+                <p>{school.summary}</p>
               </article>
             ))}
           </div>
@@ -129,14 +149,14 @@ function HomePage() {
 
         <section className="band process-band">
           <div className="section-heading">
-            <p className="section-kicker">Summary</p>
-            <h2>Clean, readable, batteries-included engineering with a strong delivery mindset.</h2>
+            <p className="section-kicker">The Core Spell</p>
+            <h2>"Give me a messy real-world problem and enough Python, AWS, Docker and questionable persistence, and I'll eventually make it an API."</h2>
           </div>
 
           <ol className="process-list">
-            {process.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
+            <li>Take an impossible requirement, a production database, and a coffee machine.</li>
+            <li>Apply Python, cloud infrastructure, and mild chaos engineering.</li>
+            <li>Ship something that somehow works and nobody dares to refactor.</li>
           </ol>
         </section>
 
@@ -168,11 +188,11 @@ function HomePage() {
         <DialogBackdrop className="dialog-backdrop" />
         <div className="dialog-wrap">
           <DialogPanel className="dialog-panel">
-            <p className="section-kicker">Contact</p>
-            <h2>Agustin Enriquez Python Developer Blog</h2>
+            <p className="section-kicker">🧙 Summon the Wizard</p>
+            <h2>Agustin Enriquez — Technovoodoo Practitioner</h2>
             <p className="dialog-copy">
-              Python enthusiast focused on FastAPI, Django, and Flask development, with
-              10+ years building systems that hold up under real-world traffic.
+              10+ years of Python sorcery, AWS cloud alchemy, and production archaeology.
+              Open to remote work across US, EU, and Asia timezones.
             </p>
 
             <div className="dialog-grid">
