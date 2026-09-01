@@ -116,17 +116,6 @@ function HomePage() {
                 </a>
               </div>
             </div>
-
-            <aside className="hero-panel" aria-label="Project snapshot">
-              <p className="panel-label">Contact</p>
-              <ul className="stack-list">
-                <li>cagustinenriquez@gmail.com</li>
-                <li>+54 11 3820-3567</li>
-                <li>Open to Remote</li>
-                <li>US / EU / Asia</li>
-                <li>LinkedIn profile</li>
-              </ul>
-            </aside>
           </div>
         </section>
 
