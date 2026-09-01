@@ -1,3 +1,4 @@
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import {
   Dialog,
   DialogBackdrop,
@@ -7,7 +8,13 @@ import {
   DisclosurePanel,
 } from '@headlessui/react'
 import { useState } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
+import BlogList from './pages/BlogList'
+import BlogPost from './pages/BlogPost'
+import BlogEditor from './pages/BlogEditor'
+import Login from './pages/Login'
+import { Navbar } from './components/Navbar'
 
 const projects = [
   {
@@ -54,11 +61,13 @@ const faq = [
   },
 ] as const
 
-function App() {
+function HomePage() {
   const [isContactOpen, setIsContactOpen] = useState(false)
 
   return (
     <>
+      <Navbar onContactClick={() => setIsContactOpen(true)} />
+
       <main className="page-shell">
         <section className="hero">
           <div className="topbar">
@@ -71,17 +80,17 @@ function App() {
           <div className="hero-grid">
             <div className="hero-copy">
               <p className="section-kicker">Agustin Enriquez Python Developer Blog</p>
-              <h1>Staff-level Python engineer building scalable backend platforms and high-throughput APIs.</h1>
+              <h1>Software Python engineer building scalable backend platforms and high-throughput APIs.</h1>
               <p className="lede">
-                Staff-level engineer with 10+ years building scalable backend platforms,
+                Software engineer with 10+ years building scalable backend platforms,
                 high-throughput APIs, and data-intensive systems with a strong focus on
                 architecture, performance optimization, and cloud-native delivery.
               </p>
 
               <div className="hero-actions">
-                <a className="primary-link" href="#work">
-                  Core strengths
-                </a>
+                <Link to="/blog" className="primary-link">
+                  Read Blog
+                </Link>
                 <a className="secondary-link" href="#faq">
                   Engineering philosophy
                 </a>
@@ -188,6 +197,32 @@ function App() {
         </div>
       </Dialog>
     </>
+  )
+}
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes (cache time)
+    },
+  },
+})
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/blog" element={<BlogList />} />
+          <Route path="/blog/login" element={<Login />} />
+          <Route path="/blog/create" element={<BlogEditor />} />
+          <Route path="/blog/:slug/edit" element={<BlogEditor />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   )
 }
 
