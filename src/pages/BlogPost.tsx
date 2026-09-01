@@ -9,6 +9,7 @@ export function BlogPost() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const { data: post, isLoading: loading, error, isError } = useQuery({
     queryKey: ['post', slug],
@@ -24,7 +25,7 @@ export function BlogPost() {
       await api.deletePost(post.slug)
       navigate('/blog')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete post')
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete post')
       setDeleting(false)
     }
   }
@@ -88,6 +89,12 @@ export function BlogPost() {
               )}
             </div>
           </article>
+
+          {deleteError && (
+            <div className="alert alert-danger mt-4">
+              {deleteError}
+            </div>
+          )}
 
           {api.isAuthenticated() && (
             <div className="mt-4 d-flex gap-2">
