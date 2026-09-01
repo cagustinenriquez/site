@@ -223,19 +223,22 @@
 }
 
 .hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 1rem;
-  align-items: end;
 }
 
 .hero-copy h1 {
-  max-width: 18ch;
+  max-width: none;
   color: var(--ink);
 }
 
 .lede {
-  max-width: 58ch;
+  max-width: 60ch;
+  margin: 0 auto;
   font-size: 1.125rem;
   color: var(--ink-secondary);
 }
