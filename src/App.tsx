@@ -14,6 +14,7 @@ import BlogList from './pages/BlogList'
 import BlogPost from './pages/BlogPost'
 import BlogEditor from './pages/BlogEditor'
 import Login from './pages/Login'
+import AdminDashboard from './pages/AdminDashboard'
 import { Navbar } from './components/Navbar'
 
 const schools = [
@@ -226,6 +227,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/blog" element={<BlogList />} />
           <Route path="/blog/login" element={<Login />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/blog/create" element={<BlogEditor />} />
           <Route path="/blog/:slug/edit" element={<BlogEditor />} />
           <Route path="/blog/:slug" element={<BlogPost />} />

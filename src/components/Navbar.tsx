@@ -56,15 +56,20 @@ export function Navbar({ onContactClick, showBack }: NavbarProps) {
               Contact
             </button>
             {api.isAuthenticated() && (
-              <button
-                className="btn btn-outline-secondary"
-                onClick={() => {
-                  api.logout()
-                  window.location.reload()
-                }}
-              >
-                Logout
-              </button>
+              <>
+                <Link to="/admin" className="btn btn-outline-primary">
+                  Admin
+                </Link>
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => {
+                    api.logout()
+                    window.location.reload()
+                  }}
+                >
+                  Logout
+                </button>
+              </>
             )}
           </div>
         </div>
