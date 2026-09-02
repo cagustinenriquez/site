@@ -171,7 +171,24 @@ export function BlogPost() {
 
             {/* Content */}
             <div style={{ color: '#cbd5e1', lineHeight: '1.8', marginBottom: '2rem' }}>
-              <ReactMarkdown components={{ code: CodeBlock }}>
+              <ReactMarkdown
+                components={{
+                  code: CodeBlock,
+                  img: ({ src, alt }) => (
+                    <img
+                      src={src}
+                      alt={alt}
+                      style={{
+                        maxWidth: '100%',
+                        height: 'auto',
+                        margin: '1.5rem 0',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(148, 163, 184, 0.2)',
+                      }}
+                    />
+                  ),
+                }}
+              >
                 {post.content}
               </ReactMarkdown>
             </div>
