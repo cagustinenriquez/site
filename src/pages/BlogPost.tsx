@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
 import { api } from '@/lib/api'
 import { Navbar } from '@/components/Navbar'
+import { Edit2, Trash2 } from 'lucide-react'
 
 export function BlogPost() {
   const { slug } = useParams<{ slug: string }>()
@@ -34,10 +35,8 @@ export function BlogPost() {
     return (
       <>
         <Navbar showBack={true} />
-        <div className="container mt-5 text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
+          <div style={{ color: '#94a3b8' }}>Loading...</div>
         </div>
       </>
     )
@@ -47,8 +46,8 @@ export function BlogPost() {
     return (
       <>
         <Navbar showBack={true} />
-        <div className="container mt-5">
-          <div className="alert alert-danger" style={{ maxWidth: '48rem', margin: '0 auto' }}>
+        <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
+          <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '1.5rem', background: 'rgba(127, 29, 29, 0.3)', border: '1px solid #7c2d12', borderRadius: '8px', color: '#fca5a5' }}>
             {error instanceof Error ? error.message : 'Post not found'}
           </div>
         </div>
@@ -56,52 +55,150 @@ export function BlogPost() {
     )
   }
 
+  const glassStyle = {
+    background: 'rgba(30, 41, 59, 0.5)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(148, 163, 184, 0.1)',
+    borderRadius: '12px',
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+
   return (
     <>
       <Navbar showBack={true} />
-      <div className="container mt-5 mb-5">
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
         <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
-          <article className="card" style={{ backgroundColor: '#262626', borderColor: '#404040' }}>
-            <div className="card-body">
-              <h1 className="card-title display-5 mb-3">{post.title}</h1>
-              {post.excerpt && <p className="lead" style={{ color: '#c9c9c9' }}>{post.excerpt}</p>}
+          {/* Article Card */}
+          <article style={{ ...glassStyle, padding: '2.5rem', marginBottom: '2rem' }}>
+            {/* Header */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#f1f5f9', marginBottom: '1rem', lineHeight: '1.2' }}>
+                {post.title}
+              </h1>
 
+              {/* Metadata */}
+              <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                {(post.date || post.created_at) && (
+                  <span>📅 {formatDate(post.date || post.created_at || '')}</span>
+                )}
+                {post.updated_at && (post.date || post.created_at) !== post.updated_at && (
+                  <span>✏️ Updated {formatDate(post.updated_at)}</span>
+                )}
+              </div>
+
+              {/* Excerpt */}
+              {post.excerpt && (
+                <p style={{ fontSize: '1.125rem', color: '#cbd5e1', marginBottom: '1rem', fontStyle: 'italic' }}>
+                  {post.excerpt}
+                </p>
+              )}
+
+              {/* Tags */}
               {post.tags && post.tags.length > 0 && (
-                <div className="mt-4 mb-4">
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {post.tags.map((tag) => (
-                    <span key={tag} className="badge bg-secondary me-2 mb-2">
+                    <span
+                      key={tag}
+                      style={{
+                        padding: '0.25rem 0.75rem',
+                        background: 'rgba(14, 165, 233, 0.15)',
+                        border: '1px solid rgba(14, 165, 233, 0.3)',
+                        borderRadius: '16px',
+                        color: '#0ea5e9',
+                        fontSize: '0.825rem',
+                      }}
+                    >
                       {tag}
                     </span>
                   ))}
                 </div>
               )}
+            </div>
 
-              <hr style={{ borderColor: '#404040' }} />
+            {/* Divider */}
+            <div style={{ height: '1px', background: 'rgba(148, 163, 184, 0.1)', margin: '2rem 0' }} />
 
-              <div className="mt-4 prose prose-invert max-w-none" style={{ color: '#c9c9c9', lineHeight: '1.6' }}>
-                <ReactMarkdown>{post.content}</ReactMarkdown>
-              </div>
-
-              {post.updated_at && (
-                <div className="mt-4 text-muted-foreground" style={{ color: '#888888', fontSize: '0.875rem' }}>
-                  Last updated: {new Date(post.updated_at).toLocaleDateString()}
-                </div>
-              )}
+            {/* Content */}
+            <div style={{ color: '#cbd5e1', lineHeight: '1.8', marginBottom: '2rem' }}>
+              <ReactMarkdown>{post.content}</ReactMarkdown>
             </div>
           </article>
 
+          {/* Error Message */}
           {deleteError && (
-            <div className="alert alert-danger mt-4">
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1rem',
+                background: 'rgba(127, 29, 29, 0.3)',
+                border: '1px solid #7c2d12',
+                borderRadius: '8px',
+                color: '#fca5a5',
+                fontSize: '0.875rem',
+              }}
+            >
               {deleteError}
             </div>
           )}
 
+          {/* Admin Actions */}
           {api.isAuthenticated() && (
-            <div className="mt-4 d-flex gap-2">
-              <a href={`/blog/${post.slug}/edit`} className="btn btn-primary">
-                Edit Post
-              </a>
-              <button className="btn btn-danger" onClick={handleDelete} disabled={deleting}>
+            <div style={{ ...glassStyle, padding: '1.5rem', display: 'flex', gap: '1rem' }}>
+              <Link to={`/blog/${post.slug}/edit`} style={{ textDecoration: 'none', flex: 1 }}>
+                <button
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem',
+                    background: 'rgba(14, 165, 233, 0.15)',
+                    border: '1px solid rgba(14, 165, 233, 0.3)',
+                    borderRadius: '8px',
+                    color: '#0ea5e9',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 200ms',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(14, 165, 233, 0.25)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(14, 165, 233, 0.15)'
+                  }}
+                >
+                  <Edit2 size={18} />
+                  Edit
+                </button>
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '8px',
+                  color: '#ef4444',
+                  fontWeight: '500',
+                  cursor: deleting ? 'not-allowed' : 'pointer',
+                  opacity: deleting ? 0.6 : 1,
+                  transition: 'all 200ms',
+                }}
+                onMouseEnter={(e) => !deleting && (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)')}
+              >
+                <Trash2 size={18} />
                 {deleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>

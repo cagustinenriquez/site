@@ -6,12 +6,13 @@ interface LoginResponse {
 }
 
 interface Post {
-  id: number
+  id: number | string
   slug: string
   title: string
   content: string
   excerpt?: string
   tags?: string[]
+  date?: string
   created_at?: string
   updated_at?: string
 }
