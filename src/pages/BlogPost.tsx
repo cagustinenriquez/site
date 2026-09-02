@@ -179,7 +179,8 @@ export function BlogPost() {
                       src={src}
                       alt={alt}
                       style={{
-                        maxWidth: '100%',
+                        maxWidth: '600px',
+                        width: '100%',
                         height: 'auto',
                         margin: '1.5rem 0',
                         borderRadius: '8px',
