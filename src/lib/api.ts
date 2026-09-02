@@ -2,6 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://agustinenriquez.py
 
 interface LoginResponse {
   access_token: string
+  refresh_token: string
   token_type: string
 }
 
@@ -33,9 +34,11 @@ interface CreatePostPayload {
 
 class ApiClient {
   private token: string | null = null
+  private refreshToken: string | null = null
 
   constructor() {
     this.token = localStorage.getItem('access_token')
+    this.refreshToken = localStorage.getItem('refresh_token')
   }
 
   private async request<T>(
@@ -64,10 +67,26 @@ class ApiClient {
     return response.json()
   }
 
-  async login(password: string): Promise<string> {
+  async login(username: string, password: string): Promise<string> {
     const data = await this.request<LoginResponse>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ username, password }),
+    })
+    this.token = data.access_token
+    this.refreshToken = data.refresh_token
+    localStorage.setItem('access_token', data.access_token)
+    localStorage.setItem('refresh_token', data.refresh_token)
+    return data.access_token
+  }
+
+  async refreshAccessToken(): Promise<string> {
+    if (!this.refreshToken) {
+      throw new Error('No refresh token available')
+    }
+
+    const data = await this.request<LoginResponse>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: this.refreshToken }),
     })
     this.token = data.access_token
     localStorage.setItem('access_token', data.access_token)

@@ -24,10 +24,11 @@ export function Login() {
     try {
       setLoading(true)
       setError(null)
-      await api.login(password)
+      await api.login(username, password)
       navigate(from)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed')
+      const errorMessage = err instanceof Error ? err.message : 'Authentication failed'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

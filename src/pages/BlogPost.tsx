@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/atom-one-dark.css'
 import { api } from '@/lib/api'
 import { Navbar } from '@/components/Navbar'
 import { Edit2, Trash2 } from 'lucide-react'
@@ -67,6 +69,51 @@ export function BlogPost() {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   }
 
+  const CodeBlock = ({ inline, className, children }: any) => {
+    const code = String(children).replace(/\n$/, '')
+
+    // Inline code (single backticks)
+    if (inline || !className) {
+      return (
+        <code style={{
+          background: 'rgba(14, 165, 233, 0.15)',
+          padding: '0.2rem 0.4rem',
+          borderRadius: '4px',
+          color: '#0ea5e9',
+          fontFamily: 'monospace',
+          fontSize: '0.9em',
+          display: 'inline',
+          whiteSpace: 'nowrap',
+        }}>
+          {children}
+        </code>
+      )
+    }
+
+    // Block code (triple backticks)
+    const match = /language-(\w+)/.exec(className)
+    const language = match ? match[1] : 'plaintext'
+
+    let highlightedCode = code
+    try {
+      highlightedCode = hljs.highlight(code, { language, ignoreIllegals: true }).value
+    } catch (e) {
+      highlightedCode = hljs.highlightAuto(code).value
+    }
+
+    return (
+      <pre style={{ margin: '1rem 0', borderRadius: '8px', overflow: 'auto', padding: '1rem', background: '#282c34', lineHeight: '1.6', fontSize: '0.9rem' }}>
+        <code
+          dangerouslySetInnerHTML={{ __html: highlightedCode }}
+          style={{ fontFamily: 'monospace', background: 'none' }}
+        />
+        <style>{`
+          pre code span { background: none !important; }
+        `}</style>
+      </pre>
+    )
+  }
+
   return (
     <>
       <Navbar showBack={true} />
@@ -124,8 +171,13 @@ export function BlogPost() {
 
             {/* Content */}
             <div style={{ color: '#cbd5e1', lineHeight: '1.8', marginBottom: '2rem' }}>
-              <ReactMarkdown>{post.content}</ReactMarkdown>
+              <ReactMarkdown components={{ code: CodeBlock }}>
+                {post.content}
+              </ReactMarkdown>
             </div>
+
+            {/* End of Article Divider */}
+            <div style={{ margin: '3rem 0 0', paddingTop: '2rem', borderTop: '2px solid rgba(148, 163, 184, 0.15)' }} />
           </article>
 
           {/* Error Message */}
