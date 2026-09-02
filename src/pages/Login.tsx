@@ -6,6 +6,7 @@ import { Navbar } from '@/components/Navbar'
 export function Login() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -15,8 +16,8 @@ export function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!password) {
-      setError('Password is required')
+    if (!username || !password) {
+      setError('Username and password are required')
       return
     }
 
@@ -32,12 +33,24 @@ export function Login() {
     }
   }
 
+  const inputStyle = {
+    width: '100%',
+    padding: '0.75rem',
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    border: '1px solid #404040',
+    borderRadius: '8px',
+    color: '#f1f5f9',
+    fontSize: '1rem',
+    transition: 'border-color 200ms',
+    boxSizing: 'border-box' as const,
+  }
+
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-neutral-900 flex items-center justify-center px-4 pt-24">
-        <div style={{ maxWidth: '28rem', width: '100%' }}>
-          <div className="text-center mb-8">
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: '#0f172a' }}>
+        <div style={{ maxWidth: '24rem', width: '100%' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔐</p>
             <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#f1f5f9', marginBottom: '0.5rem' }}>
               Enter the Spellbook
@@ -71,6 +84,31 @@ export function Login() {
             )}
 
             <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label
+                  htmlFor="username"
+                  style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#cbd5e1',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  Username
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Sorcerer name"
+                  style={inputStyle}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '#404040')}
+                />
+              </div>
+
               <div style={{ marginBottom: '1.5rem' }}>
                 <label
                   htmlFor="password"
@@ -91,17 +129,7 @@ export function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoFocus
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    backgroundColor: 'rgba(15, 23, 42, 0.8)',
-                    border: '1px solid #404040',
-                    borderRadius: '8px',
-                    color: '#f1f5f9',
-                    fontSize: '1rem',
-                    transition: 'border-color 200ms',
-                    boxSizing: 'border-box',
-                  }}
+                  style={inputStyle}
                   onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
                   onBlur={(e) => (e.currentTarget.style.borderColor = '#404040')}
                 />
