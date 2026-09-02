@@ -3,9 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { Navbar } from '@/components/Navbar'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Trash2, Edit2, Plus } from 'lucide-react'
+import { Trash2, Edit2, Plus, FileText } from 'lucide-react'
 
 export function AdminDashboard() {
   const navigate = useNavigate()
@@ -41,8 +39,8 @@ export function AdminDashboard() {
     return (
       <>
         <Navbar showBack={true} />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-slate-400">Loading...</div>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
+          <div style={{ color: '#94a3b8' }}>Loading...</div>
         </div>
       </>
     )
@@ -51,93 +49,187 @@ export function AdminDashboard() {
   const posts = data?.posts || []
   const totalPosts = data?.total || 0
 
+  const glassStyle = {
+    background: 'rgba(30, 41, 59, 0.5)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(148, 163, 184, 0.1)',
+    borderRadius: '12px',
+  }
+
   return (
     <>
       <Navbar showBack={true} />
-      <div className="min-h-screen bg-neutral-900 py-12 px-4 pt-24">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <div className="flex justify-between items-center">
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
+        <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+          {/* Header */}
+          <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '2rem' }}>
+            <div>
+              <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#f1f5f9', marginBottom: '0.5rem' }}>
+                📝 Spellbook Manager
+              </h1>
+              <p style={{ color: '#94a3b8' }}>Manage your grimoire of posts</p>
+            </div>
+            <Link to="/blog/create" style={{ textDecoration: 'none' }}>
+              <button
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1.5rem',
+                  background: '#0ea5e9',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'background 200ms',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#0284c7')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = '#0ea5e9')}
+              >
+                <Plus size={18} />
+                New Post
+              </button>
+            </Link>
+          </div>
+
+          {/* Stats Card */}
+          <div style={{ ...glassStyle, padding: '2rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ fontSize: '2.5rem' }}>📚</div>
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
-                <p className="text-slate-400">Manage your blog posts</p>
+                <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '0.25rem' }}>TOTAL POSTS</p>
+                <p style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#f1f5f9' }}>{totalPosts}</p>
               </div>
-              <Link to="/blog/create">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Post
-                </Button>
-              </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-400">Total Posts</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">{totalPosts}</div>
-              </CardContent>
-            </Card>
-          </div>
-
+          {/* Error Message */}
           {isError && (
-            <div className="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg text-red-300">
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1rem',
+                background: 'rgba(127, 29, 29, 0.3)',
+                border: '1px solid #7c2d12',
+                borderRadius: '8px',
+                color: '#fca5a5',
+                fontSize: '0.875rem',
+              }}
+            >
               {error instanceof Error ? error.message : 'Failed to load posts'}
             </div>
           )}
 
+          {/* Empty State */}
           {posts.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-slate-400 mb-4">No posts yet. Create your first one!</p>
-                <Link to="/blog/create">
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Post
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <div style={{ ...glassStyle, padding: '3rem', textAlign: 'center' }}>
+              <FileText size={48} style={{ margin: '0 auto 1rem', color: '#64748b' }} />
+              <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>No posts yet. Write your first spell!</p>
+              <Link to="/blog/create" style={{ textDecoration: 'none' }}>
+                <button
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    background: '#0ea5e9',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Plus size={18} />
+                  Create Post
+                </button>
+              </Link>
+            </div>
           ) : (
-            <div className="space-y-3">
+            <div style={{ display: 'grid', gap: '1rem' }}>
               {posts.map((post) => (
-                <Card key={post.slug} className="hover:border-slate-600 transition">
-                  <CardContent className="py-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-white mb-1">{post.title}</h3>
-                        <div className="flex gap-3 text-sm text-slate-400">
-                          {post.tags && post.tags.length > 0 && (
-                            <span>{post.tags.join(', ')}</span>
-                          )}
-                          {post.updated_at && (
-                            <span>
-                              Updated: {new Date(post.updated_at).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Link to={`/blog/${post.slug}/edit`}>
-                          <Button size="sm" variant="outline">
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                        </Link>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(post.slug)}
-                          disabled={deleting === post.slug}
-                          className="text-red-400 hover:text-red-300"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                <div
+                  key={post.slug}
+                  style={{
+                    ...glassStyle,
+                    padding: '1.5rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    transition: 'all 200ms',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(30, 41, 59, 0.8)'
+                    e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.2)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(30, 41, 59, 0.5)'
+                    e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.1)'
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontWeight: '600', color: '#f1f5f9', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
+                      {post.title}
+                    </h3>
+                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', color: '#64748b', flexWrap: 'wrap' }}>
+                      {post.tags && post.tags.length > 0 && (
+                        <span>Tags: {post.tags.join(', ')}</span>
+                      )}
+                      {post.updated_at && (
+                        <span>Updated: {new Date(post.updated_at).toLocaleDateString()}</span>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Link to={`/blog/${post.slug}/edit`}>
+                      <button
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '0.5rem',
+                          background: 'rgba(14, 165, 233, 0.1)',
+                          border: '1px solid rgba(14, 165, 233, 0.3)',
+                          borderRadius: '6px',
+                          color: '#0ea5e9',
+                          cursor: 'pointer',
+                          transition: 'all 200ms',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(14, 165, 233, 0.2)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(14, 165, 233, 0.1)'
+                        }}
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(post.slug)}
+                      disabled={deleting === post.slug}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0.5rem',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '6px',
+                        color: '#ef4444',
+                        cursor: deleting === post.slug ? 'not-allowed' : 'pointer',
+                        opacity: deleting === post.slug ? 0.6 : 1,
+                        transition: 'all 200ms',
+                      }}
+                      onMouseEnter={(e) => !deleting && (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)')}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
