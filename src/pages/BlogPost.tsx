@@ -5,7 +5,6 @@ import ReactMarkdown from 'react-markdown'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
 import { api } from '@/lib/api'
-import { Navbar } from '@/components/Navbar'
 import { Edit2, Trash2 } from 'lucide-react'
 
 export function BlogPost() {
@@ -35,25 +34,19 @@ export function BlogPost() {
 
   if (loading) {
     return (
-      <>
-        <Navbar showBack={true} />
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
-          <div style={{ color: '#94a3b8' }}>Loading...</div>
-        </div>
-      </>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
+        <div style={{ color: '#94a3b8' }}>Loading...</div>
+      </div>
     )
   }
 
   if (isError || !post) {
     return (
-      <>
-        <Navbar showBack={true} />
-        <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
-          <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '1.5rem', background: 'rgba(127, 29, 29, 0.3)', border: '1px solid #7c2d12', borderRadius: '8px', color: '#fca5a5' }}>
-            {error instanceof Error ? error.message : 'Post not found'}
-          </div>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
+        <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '1.5rem', background: 'rgba(127, 29, 29, 0.3)', border: '1px solid #7c2d12', borderRadius: '8px', color: '#fca5a5' }}>
+          {error instanceof Error ? error.message : 'Post not found'}
         </div>
-      </>
+      </div>
     )
   }
 
@@ -115,9 +108,7 @@ export function BlogPost() {
   }
 
   return (
-    <>
-      <Navbar showBack={true} />
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
         <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
           {/* Article Card */}
           <article style={{ ...glassStyle, padding: '2.5rem', marginBottom: '2rem' }}>
@@ -275,7 +266,6 @@ export function BlogPost() {
           )}
         </div>
       </div>
-    </>
   )
 }
 

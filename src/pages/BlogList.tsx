@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import { Navbar } from '@/components/Navbar'
 import { BookOpen } from 'lucide-react'
 
 export function BlogList() {
@@ -31,9 +30,7 @@ export function BlogList() {
   }
 
   return (
-    <>
-      <Navbar />
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
         <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
           {/* Error */}
           {isError && (
@@ -187,8 +184,7 @@ export function BlogList() {
             </>
           )}
         </div>
-      </div>
-    </>
+    </div>
   )
 }
 

@@ -21,12 +21,12 @@ const schools = [
   {
     icon: '🐍',
     title: 'Python sorcery',
-    summary: 'Django, Flask, FastAPI, async, multiprocessing, data processing, Pandas/Polars.',
+    summary: 'Django, Flask, FastAPI, async, multiprocessing, data processing, Pandas.',
   },
   {
     icon: '☁️',
     title: 'Cloud alchemy',
-    summary: 'AWS, S3, Lambda, Step Functions, RDS, IAM, queues and event-driven systems.',
+    summary: 'AWS, S3, EC2, RDS, IAM, queues and event-driven systems.',
   },
   {
     icon: '🧱',
@@ -41,7 +41,7 @@ const schools = [
   {
     icon: '🧠',
     title: 'AI summoning',
-    summary: 'RAG, agents, LLM APIs, MCP, vector databases, LLM evaluation.',
+    summary: 'Claude, Codex, Copilot, you name it.',
   },
   {
     icon: '🏦',
@@ -74,7 +74,7 @@ const faq = [
   {
     question: 'So you actually know what you\'re doing, or...?',
     answer:
-      'Mostly. 10+ years of production systems, 10 billion+ records, millions in financial transactions. The API jokes are real, the wins are real, the production archaeology is very real.',
+      'Mostly. 10+ years of production systems, 10 million+ records, millions in financial transactions. The API jokes are real, the wins are real, the production archaeology is very real.',
   },
   {
     question: 'Why Python, AWS, Docker, and "questionable persistence"?',
@@ -83,18 +83,14 @@ const faq = [
   },
 ] as const
 
-function HomePage() {
-  const [isContactOpen, setIsContactOpen] = useState(false)
-
+function HomePage({ onContactClick }: { onContactClick: () => void }) {
   return (
     <>
-      <Navbar onContactClick={() => setIsContactOpen(true)} />
-
       <main className="page-shell">
         <section className="hero">
           <div className="topbar">
             <p className="eyebrow">Buenos Aires, Argentina</p>
-            <button className="ghost-button" onClick={() => setIsContactOpen(true)}>
+            <button className="ghost-button" onClick={onContactClick}>
               Contact details
             </button>
           </div>
@@ -173,39 +169,6 @@ function HomePage() {
           </div>
         </section>
       </main>
-
-      <Dialog open={isContactOpen} onClose={setIsContactOpen} className="contact-dialog">
-        <DialogBackdrop className="dialog-backdrop" />
-        <div className="dialog-wrap">
-          <DialogPanel className="dialog-panel">
-            <p className="section-kicker">🧙 Summon the Wizard</p>
-            <h2>Agustin Enriquez — Technovoodoo Practitioner</h2>
-            <p className="dialog-copy">
-              10+ years of Python sorcery, AWS cloud alchemy, and production archaeology.
-              Open to remote work across US, EU, and Asia timezones.
-            </p>
-
-            <div className="dialog-grid">
-              <div>
-                <p className="dialog-label">Reach me</p>
-                <p>Buenos Aires, Argentina - cagustinenriquez@gmail.com - +54 11 3820-3567</p>
-              </div>
-              <div>
-                <p className="dialog-label">LinkedIn</p>
-                <p>
-                  <a href="https://www.linkedin.com/in/agustin-e-00205055/" target="_blank" rel="noreferrer">
-                    linkedin.com/in/agustin-e-00205055
-                  </a>
-                </p>
-              </div>
-            </div>
-
-            <button className="ghost-button close-button" onClick={() => setIsContactOpen(false)}>
-              Close
-            </button>
-          </DialogPanel>
-        </div>
-      </Dialog>
     </>
   )
 }
@@ -219,19 +182,62 @@ const queryClient = new QueryClient({
   },
 })
 
+function AppRoutes({ onContactClick }: { onContactClick: () => void }) {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage onContactClick={onContactClick} />} />
+      <Route path="/blog" element={<BlogList />} />
+      <Route path="/blog/login" element={<Login />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/blog/create" element={<BlogEditor />} />
+      <Route path="/blog/:slug/edit" element={<BlogEditor />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+    </Routes>
+  )
+}
+
 function App() {
+  const [isContactOpen, setIsContactOpen] = useState(false)
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/blog" element={<BlogList />} />
-          <Route path="/blog/login" element={<Login />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/blog/create" element={<BlogEditor />} />
-          <Route path="/blog/:slug/edit" element={<BlogEditor />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-        </Routes>
+        <Navbar onContactClick={() => setIsContactOpen(true)} />
+        <AppRoutes onContactClick={() => setIsContactOpen(true)} />
+
+        {/* Global Contact Dialog */}
+        <Dialog open={isContactOpen} onClose={setIsContactOpen} className="contact-dialog">
+          <DialogBackdrop className="dialog-backdrop" />
+          <div className="dialog-wrap">
+            <DialogPanel className="dialog-panel">
+              <p className="section-kicker">🧙 Summon the Wizard</p>
+              <h2>Agustin Enriquez — Technovoodoo Practitioner</h2>
+              <p className="dialog-copy">
+                10+ years of Python sorcery, AWS cloud alchemy, and production archaeology.
+                Open to remote work across US, EU, and Asia timezones.
+              </p>
+
+              <div className="dialog-grid">
+                <div>
+                  <p className="dialog-label">Reach me</p>
+                  <p>Buenos Aires, Argentina - cagustinenriquez@gmail.com - +54 11 3820-3567</p>
+                </div>
+                <div>
+                  <p className="dialog-label">LinkedIn</p>
+                  <p>
+                    <a href="https://www.linkedin.com/in/agustin-e-00205055/" target="_blank" rel="noreferrer">
+                      linkedin.com/in/agustin-e-00205055
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+              <button className="ghost-button close-button" onClick={() => setIsContactOpen(false)}>
+                Close
+              </button>
+            </DialogPanel>
+          </div>
+        </Dialog>
       </Router>
     </QueryClientProvider>
   )
