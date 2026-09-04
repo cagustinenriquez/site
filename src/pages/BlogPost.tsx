@@ -170,7 +170,6 @@ export function BlogPost() {
                       src={src}
                       alt={alt}
                       style={{
-                        maxWidth: '600px',
                         width: '100%',
                         height: 'auto',
                         margin: '1.5rem 0',
@@ -183,6 +182,17 @@ export function BlogPost() {
               >
                 {post.content}
               </ReactMarkdown>
+              <style>{`
+                div[style*="color: #cbd5e1"] svg {
+                  width: 100%;
+                  height: auto;
+                  margin: 1.5rem 0;
+                }
+                div[style*="color: #cbd5e1"] pre {
+                  width: 100% !important;
+                  box-sizing: border-box;
+                }
+              `}</style>
             </div>
 
             {/* End of Article Divider */}
@@ -207,63 +217,88 @@ export function BlogPost() {
           )}
 
           {/* Admin Actions */}
-          {api.isAuthenticated() && (
-            <div style={{ ...glassStyle, padding: '1.5rem', display: 'flex', gap: '1rem' }}>
-              <Link to={`/blog/${post.slug}/edit`} style={{ textDecoration: 'none', flex: 1 }}>
+          <div style={{ ...glassStyle, padding: '1.5rem', display: 'flex', gap: '1rem' }}>
+            <Link to="/blog" style={{ textDecoration: 'none', flex: 1 }}>
+              <button
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  background: 'rgba(148, 163, 184, 0.15)',
+                  border: '1px solid rgba(148, 163, 184, 0.3)',
+                  borderRadius: '8px',
+                  color: '#cbd5e1',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 200ms',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(148, 163, 184, 0.25)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(148, 163, 184, 0.15)'
+                }}
+              >
+                ← Back to Posts
+              </button>
+            </Link>
+            {api.isAuthenticated() && (
+              <>
+                <Link to={`/blog/${post.slug}/edit`} style={{ textDecoration: 'none', flex: 1 }}>
+                  <button
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      padding: '0.75rem',
+                      background: 'rgba(14, 165, 233, 0.15)',
+                      border: '1px solid rgba(14, 165, 233, 0.3)',
+                      borderRadius: '8px',
+                      color: '#0ea5e9',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 200ms',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(14, 165, 233, 0.25)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(14, 165, 233, 0.15)'
+                    }}
+                  >
+                    <Edit2 size={18} />
+                    Edit
+                  </button>
+                </Link>
                 <button
+                  onClick={handleDelete}
+                  disabled={deleting}
                   style={{
-                    width: '100%',
+                    flex: 1,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.5rem',
                     padding: '0.75rem',
-                    background: 'rgba(14, 165, 233, 0.15)',
-                    border: '1px solid rgba(14, 165, 233, 0.3)',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
                     borderRadius: '8px',
-                    color: '#0ea5e9',
+                    color: '#ef4444',
                     fontWeight: '500',
-                    cursor: 'pointer',
+                    cursor: deleting ? 'not-allowed' : 'pointer',
+                    opacity: deleting ? 0.6 : 1,
                     transition: 'all 200ms',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(14, 165, 233, 0.25)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(14, 165, 233, 0.15)'
-                  }}
+                  onMouseEnter={(e) => !deleting && (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)')}
                 >
-                  <Edit2 size={18} />
-                  Edit
+                  <Trash2 size={18} />
+                  {deleting ? 'Deleting...' : 'Delete'}
                 </button>
-              </Link>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  padding: '0.75rem',
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '8px',
-                  color: '#ef4444',
-                  fontWeight: '500',
-                  cursor: deleting ? 'not-allowed' : 'pointer',
-                  opacity: deleting ? 0.6 : 1,
-                  transition: 'all 200ms',
-                }}
-                onMouseEnter={(e) => !deleting && (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)')}
-              >
-                <Trash2 size={18} />
-                {deleting ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </div>
       </div>
   )
