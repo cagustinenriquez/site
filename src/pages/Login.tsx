@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '@/lib/api'
-import { Navbar } from '@/components/Navbar'
 
 export function Login() {
   const navigate = useNavigate()
@@ -47,9 +46,7 @@ export function Login() {
   }
 
   return (
-    <>
-      <Navbar />
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: '#0f172a' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: '#0f172a' }}>
         <div style={{ maxWidth: '24rem', width: '100%' }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔐</p>
@@ -165,7 +162,6 @@ export function Login() {
           </p>
         </div>
       </div>
-    </>
   )
 }
 
