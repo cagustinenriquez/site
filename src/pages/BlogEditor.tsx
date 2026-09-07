@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { api, type Post } from '@/lib/api'
-import { Navbar } from '@/components/Navbar'
 import { ArrowLeft } from 'lucide-react'
 
 export function BlogEditor() {
@@ -81,12 +80,9 @@ export function BlogEditor() {
 
   if (loading) {
     return (
-      <>
-        <Navbar />
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
-          <div style={{ color: '#94a3b8' }}>Loading...</div>
-        </div>
-      </>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
+        <div style={{ color: '#94a3b8' }}>Loading...</div>
+      </div>
     )
   }
 
@@ -111,9 +107,7 @@ export function BlogEditor() {
   }
 
   return (
-    <>
-      <Navbar />
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
         <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
           {/* Back Button */}
           <Link to="/admin" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '2rem' }}>
@@ -294,7 +288,6 @@ export function BlogEditor() {
           </div>
         </div>
       </div>
-    </>
   )
 }
 

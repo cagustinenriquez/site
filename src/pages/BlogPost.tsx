@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
+import mermaid from 'mermaid'
 import { api } from '@/lib/api'
 import { Edit2, Trash2 } from 'lucide-react'
+
+mermaid.initialize({ startOnLoad: true, theme: 'dark' })
 
 export function BlogPost() {
   const { slug } = useParams<{ slug: string }>()
@@ -64,6 +67,7 @@ export function BlogPost() {
 
   const CodeBlock = ({ inline, className, children }: any) => {
     const code = String(children).replace(/\n$/, '')
+    const mermaidRef = useRef<HTMLDivElement>(null)
 
     // Inline code (single backticks)
     if (inline || !className) {
@@ -86,6 +90,25 @@ export function BlogPost() {
     // Block code (triple backticks)
     const match = /language-(\w+)/.exec(className)
     const language = match ? match[1] : 'plaintext'
+
+    // Mermaid diagram
+    if (language === 'mermaid') {
+      useEffect(() => {
+        if (mermaidRef.current) {
+          mermaid.contentLoaded()
+        }
+      }, [code])
+
+      return (
+        <div
+          ref={mermaidRef}
+          className="mermaid"
+          style={{ margin: '1.5rem 0', display: 'flex', justifyContent: 'center' }}
+        >
+          {code}
+        </div>
+      )
+    }
 
     let highlightedCode = code
     try {

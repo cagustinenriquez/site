@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import { Navbar } from '@/components/Navbar'
 import { Trash2, Edit2, Plus, FileText } from 'lucide-react'
 
 export function AdminDashboard() {
@@ -37,12 +36,9 @@ export function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <>
-        <Navbar showBack={true} />
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
-          <div style={{ color: '#94a3b8' }}>Loading...</div>
-        </div>
-      </>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
+        <div style={{ color: '#94a3b8' }}>Loading...</div>
+      </div>
     )
   }
 
@@ -57,9 +53,7 @@ export function AdminDashboard() {
   }
 
   return (
-    <>
-      <Navbar showBack={true} />
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
         <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
           {/* Header */}
           <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '2rem' }}>
@@ -235,7 +229,6 @@ export function AdminDashboard() {
           )}
         </div>
       </div>
-    </>
   )
 }
 

@@ -112,7 +112,7 @@ class ApiClient {
   }
 
   async getPost(slug: string): Promise<Post> {
-    return this.request(`/posts/${slug}`)
+    return this.request(`/posts/${encodeURIComponent(slug)}`)
   }
 
   async createPost(post: CreatePostPayload): Promise<Post> {
@@ -123,14 +123,14 @@ class ApiClient {
   }
 
   async updatePost(slug: string, post: CreatePostPayload): Promise<Post> {
-    return this.request(`/posts/${slug}`, {
+    return this.request(`/posts/${encodeURIComponent(slug)}`, {
       method: 'PUT',
       body: JSON.stringify(post),
     })
   }
 
   async deletePost(slug: string): Promise<void> {
-    await this.request(`/posts/${slug}`, {
+    await this.request(`/posts/${encodeURIComponent(slug)}`, {
       method: 'DELETE',
     })
   }
