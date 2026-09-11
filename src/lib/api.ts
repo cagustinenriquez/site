@@ -54,10 +54,25 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${this.token}`
     }
 
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       ...options,
       headers,
     })
+
+    // If 401, try to refresh token and retry
+    if (response.status === 401 && this.refreshToken) {
+      try {
+        await this.refreshAccessToken()
+        headers['Authorization'] = `Bearer ${this.token}`
+        response = await fetch(url, {
+          ...options,
+          headers,
+        })
+      } catch (err) {
+        this.logout()
+        throw new Error('Session expired. Please log in again.')
+      }
+    }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}))
