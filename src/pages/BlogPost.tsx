@@ -6,6 +6,7 @@ import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
 import mermaid from 'mermaid'
 import { api } from '@/lib/api'
+import { calculateReadingTime } from '@/lib/utils'
 import { Edit2, Trash2 } from 'lucide-react'
 
 mermaid.initialize({ startOnLoad: true, theme: 'dark' })
@@ -146,6 +147,7 @@ export function BlogPost() {
                 {(post.date || post.created_at) && (
                   <span>📅 {formatDate(post.date || post.created_at || '')}</span>
                 )}
+                <span>⏱️ {calculateReadingTime(post.content)} min read</span>
                 {post.updated_at && (post.date || post.created_at) !== post.updated_at && (
                   <span>✏️ Updated {formatDate(post.updated_at)}</span>
                 )}

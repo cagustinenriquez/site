@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
+import { calculateReadingTime } from '@/lib/utils'
 import { BookOpen } from 'lucide-react'
 
 export function BlogList() {
@@ -122,8 +123,9 @@ export function BlogList() {
                       )}
 
                       {(post.date || post.created_at) && (
-                        <div style={{ fontSize: '0.8rem', color: '#64748b', borderTop: '1px solid rgba(148, 163, 184, 0.1)', paddingTop: '0.75rem', marginTop: 'auto' }}>
-                          {formatDate(post.date || post.created_at || '')}
+                        <div style={{ fontSize: '0.8rem', color: '#64748b', borderTop: '1px solid rgba(148, 163, 184, 0.1)', paddingTop: '0.75rem', marginTop: 'auto', display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{formatDate(post.date || post.created_at || '')}</span>
+                          <span>⏱️ {calculateReadingTime(post.content)} min</span>
                         </div>
                       )}
                     </div>
