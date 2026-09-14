@@ -69,6 +69,13 @@ export function BlogPost() {
   const CodeBlock = ({ inline, className, children }: any) => {
     const code = String(children).replace(/\n$/, '')
     const mermaidRef = useRef<HTMLDivElement>(null)
+    const [copied, setCopied] = useState(false)
+
+    const handleCopy = () => {
+      navigator.clipboard.writeText(code)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
 
     // Inline code (single backticks)
     if (inline || !className) {
@@ -119,15 +126,39 @@ export function BlogPost() {
     }
 
     return (
-      <pre style={{ margin: '1rem 0', borderRadius: '8px', overflow: 'auto', padding: '1rem', background: '#282c34', lineHeight: '1.6', fontSize: '0.9rem' }}>
-        <code
-          dangerouslySetInnerHTML={{ __html: highlightedCode }}
-          style={{ fontFamily: 'monospace', background: 'none' }}
-        />
-        <style>{`
-          pre code span { background: none !important; }
-        `}</style>
-      </pre>
+      <div style={{ position: 'relative', margin: '1rem 0', borderRadius: '8px', overflow: 'hidden', background: '#282c34' }}>
+        <button
+          onClick={handleCopy}
+          style={{
+            position: 'absolute',
+            top: '0.75rem',
+            right: '0.75rem',
+            padding: '0.5rem 0.75rem',
+            background: copied ? 'rgba(34, 197, 94, 0.3)' : 'rgba(148, 163, 184, 0.2)',
+            border: '1px solid ' + (copied ? 'rgba(34, 197, 94, 0.5)' : 'rgba(148, 163, 184, 0.3)'),
+            borderRadius: '4px',
+            color: copied ? '#22c55e' : '#cbd5e1',
+            fontSize: '0.75rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 200ms',
+            zIndex: 10,
+          }}
+          onMouseEnter={(e) => !copied && (e.currentTarget.style.background = 'rgba(148, 163, 184, 0.3)')}
+          onMouseLeave={(e) => !copied && (e.currentTarget.style.background = 'rgba(148, 163, 184, 0.2)')}
+        >
+          {copied ? '✓ Copied' : 'Copy'}
+        </button>
+        <pre style={{ margin: '0', borderRadius: '0', overflow: 'auto', padding: '1rem', background: 'none', lineHeight: '1.6', fontSize: '0.9rem' }}>
+          <code
+            dangerouslySetInnerHTML={{ __html: highlightedCode }}
+            style={{ fontFamily: 'monospace', background: 'none' }}
+          />
+          <style>{`
+            pre code span { background: none !important; }
+          `}</style>
+        </pre>
+      </div>
     )
   }
 
