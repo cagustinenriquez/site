@@ -19,6 +19,7 @@ import RecruiterList from './pages/RecruiterList'
 import RecruiterProfile from './pages/RecruiterProfile'
 import RecruiterAdmin from './pages/RecruiterAdmin'
 import { Navbar } from './components/Navbar'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 const schools = [
   {
@@ -197,7 +198,14 @@ function AppRoutes({ onContactClick }: { onContactClick: () => void }) {
       <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="/recruiters" element={<RecruiterList />} />
       <Route path="/recruiters/:id" element={<RecruiterProfile />} />
-      <Route path="/admin/recruiters" element={<RecruiterAdmin />} />
+      <Route
+        path="/admin/recruiters"
+        element={
+          <ProtectedRoute>
+            <RecruiterAdmin />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   )
 }
