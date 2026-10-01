@@ -15,7 +15,8 @@ export function RecruiterAdmin() {
     email: '',
     phone: '',
     linkedin: '',
-    bio: '',
+    notes: '',
+    reputation: 0,
   })
 
   const { data, isLoading: loading, isError, error } = useQuery({
@@ -67,7 +68,8 @@ export function RecruiterAdmin() {
         email: recruiter.email,
         phone: recruiter.phone || '',
         linkedin: recruiter.linkedin || '',
-        bio: recruiter.bio || '',
+        notes: recruiter.notes || '',
+        reputation: recruiter.reputation,
       })
       setEditingId(id)
       setIsFormOpen(true)
@@ -87,7 +89,7 @@ export function RecruiterAdmin() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', company: '', email: '', phone: '', linkedin: '', bio: '' })
+    setFormData({ name: '', company: '', email: '', phone: '', linkedin: '', notes: '', reputation: 0 })
     setEditingId(null)
   }
 
@@ -262,11 +264,35 @@ export function RecruiterAdmin() {
 
               <div>
                 <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-                  Bio
+                  Reputation
+                </label>
+                <input
+                  type="number"
+                  value={formData.reputation}
+                  onChange={(e) => setFormData({ ...formData, reputation: parseInt(e.target.value) || 0 })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
+                    borderRadius: '8px',
+                    color: '#f1f5f9',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0 0 0' }}>
+                  Positive or negative number
+                </p>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                  Notes
                 </label>
                 <textarea
-                  value={formData.bio}
-                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={4}
                   style={{
                     width: '100%',
@@ -393,7 +419,7 @@ export function RecruiterAdmin() {
                         Email
                       </th>
                       <th style={{ padding: '1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: '600' }}>
-                        Score
+                        Reputation
                       </th>
                       <th style={{ padding: '1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: '600' }}>
                         Placements
@@ -418,8 +444,8 @@ export function RecruiterAdmin() {
                         <td style={{ padding: '1rem', color: '#cbd5e1', fontSize: '0.875rem' }}>
                           {recruiter.email}
                         </td>
-                        <td style={{ padding: '1rem', textAlign: 'center', color: '#f1f5f9', fontWeight: '600' }}>
-                          {recruiter.reputation_score}
+                        <td style={{ padding: '1rem', textAlign: 'center', color: recruiter.reputation >= 0 ? '#10b981' : '#ef4444', fontWeight: '600' }}>
+                          {recruiter.reputation >= 0 ? '+' : ''}{recruiter.reputation}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'center', color: '#f1f5f9' }}>
                           {recruiter.total_placements}

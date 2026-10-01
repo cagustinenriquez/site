@@ -107,33 +107,28 @@ export function RecruiterProfile() {
                 )}
               </div>
 
-              {recruiter.bio && (
-                <p style={{ color: '#cbd5e1', lineHeight: '1.6', margin: 0 }}>
-                  {recruiter.bio}
-                </p>
+              {recruiter.notes && (
+                <div style={{ borderTop: '1px solid rgba(148, 163, 184, 0.1)', paddingTop: '1rem', marginTop: '1rem' }}>
+                  <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0 0 0.5rem 0', textTransform: 'uppercase', fontWeight: '600' }}>
+                    Notes
+                  </p>
+                  <p style={{ color: '#cbd5e1', lineHeight: '1.6', margin: 0 }}>
+                    {recruiter.notes}
+                  </p>
+                </div>
               )}
             </div>
 
             {/* Stats Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-              {/* Reputation Score */}
+              {/* Reputation */}
               <div style={{ ...glassStyle, padding: '1.5rem', textAlign: 'center' }}>
                 <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0 0 0.5rem 0', textTransform: 'uppercase', fontWeight: '600' }}>
-                  Reputation Score
+                  Reputation
                 </p>
-                <p style={{ color: '#f1f5f9', fontSize: '2.5rem', fontWeight: '700', margin: '0 0 0.5rem 0' }}>
-                  {recruiter.reputation_score}
+                <p style={{ color: recruiter.reputation >= 0 ? '#10b981' : '#ef4444', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>
+                  {recruiter.reputation >= 0 ? '+' : ''}{recruiter.reputation}
                 </p>
-                <div style={{
-                  background: 'rgba(14, 165, 233, 0.1)',
-                  borderRadius: '8px',
-                  padding: '0.5rem',
-                  fontSize: '0.75rem',
-                  color: '#0ea5e9',
-                  fontWeight: '600',
-                }}>
-                  Tier {Math.ceil(recruiter.reputation_score / 25)}
-                </div>
               </div>
 
               {/* Total Placements */}

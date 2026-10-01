@@ -39,8 +39,8 @@ interface Recruiter {
   email: string
   phone?: string
   linkedin?: string
-  bio?: string
-  reputation_score: number
+  notes?: string
+  reputation: number
   total_placements: number
   average_rating: number
   created_at?: string
@@ -60,7 +60,8 @@ interface CreateRecruiterPayload {
   email: string
   phone?: string
   linkedin?: string
-  bio?: string
+  notes?: string
+  reputation?: number
 }
 
 interface UpdateRecruiterPayload {
@@ -69,8 +70,8 @@ interface UpdateRecruiterPayload {
   email?: string
   phone?: string
   linkedin?: string
-  bio?: string
-  reputation_score?: number
+  notes?: string
+  reputation?: number
   total_placements?: number
   average_rating?: number
 }

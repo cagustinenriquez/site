@@ -7,7 +7,7 @@ import { Users } from 'lucide-react'
 export function RecruiterList() {
   const [page, setPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState('reputation_score')
+  const [sortBy, setSortBy] = useState('reputation')
   const limit = 12
 
   const { data, isLoading: loading, error, isError } = useQuery({
@@ -88,7 +88,7 @@ export function RecruiterList() {
               transition: 'all 200ms',
             }}
           >
-            <option value="reputation_score">Top Rated</option>
+            <option value="reputation">Reputation</option>
             <option value="total_placements">Most Placements</option>
             <option value="average_rating">Best Reviews</option>
           </select>
@@ -165,10 +165,10 @@ export function RecruiterList() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem', flex: 1 }}>
                       <div>
                         <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0 0 0.25rem 0', textTransform: 'uppercase', fontWeight: '600' }}>
-                          Score
+                          Reputation
                         </p>
-                        <p style={{ color: '#f1f5f9', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-                          {recruiter.reputation_score}
+                        <p style={{ color: recruiter.reputation >= 0 ? '#10b981' : '#ef4444', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
+                          {recruiter.reputation >= 0 ? '+' : ''}{recruiter.reputation}
                         </p>
                       </div>
                       <div>
