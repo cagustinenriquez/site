@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, type CreateRecruiterPayload, type UpdateRecruiterPayload } from '@/lib/api'
 import { Trash2, Edit2, Plus } from 'lucide-react'
