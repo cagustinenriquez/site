@@ -13,6 +13,8 @@ export function RecruiterAdmin() {
     name: '',
     company: '',
     email: '',
+    phone: '',
+    linkedin: '',
     bio: '',
   })
 
@@ -63,6 +65,8 @@ export function RecruiterAdmin() {
         name: recruiter.name,
         company: recruiter.company,
         email: recruiter.email,
+        phone: recruiter.phone || '',
+        linkedin: recruiter.linkedin || '',
         bio: recruiter.bio || '',
       })
       setEditingId(id)
@@ -83,7 +87,7 @@ export function RecruiterAdmin() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', company: '', email: '', bio: '' })
+    setFormData({ name: '', company: '', email: '', phone: '', linkedin: '', bio: '' })
     setEditingId(null)
   }
 
@@ -210,6 +214,50 @@ export function RecruiterAdmin() {
                     boxSizing: 'border-box',
                   }}
                 />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      background: 'rgba(15, 23, 42, 0.8)',
+                      border: '1px solid rgba(148, 163, 184, 0.2)',
+                      borderRadius: '8px',
+                      color: '#f1f5f9',
+                      fontSize: '0.95rem',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                    LinkedIn URL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.linkedin}
+                    onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                    placeholder="https://linkedin.com/in/..."
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      background: 'rgba(15, 23, 42, 0.8)',
+                      border: '1px solid rgba(148, 163, 184, 0.2)',
+                      borderRadius: '8px',
+                      color: '#f1f5f9',
+                      fontSize: '0.95rem',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
               </div>
 
               <div>

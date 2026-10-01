@@ -182,6 +182,44 @@ export function RecruiterProfile() {
                     {recruiter.email}
                   </a>
                 </div>
+                {recruiter.phone && (
+                  <div>
+                    <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
+                      Phone
+                    </p>
+                    <a
+                      href={`tel:${recruiter.phone}`}
+                      style={{
+                        color: '#0ea5e9',
+                        textDecoration: 'none',
+                        fontSize: '0.95rem',
+                        fontWeight: '500',
+                      }}
+                    >
+                      {recruiter.phone}
+                    </a>
+                  </div>
+                )}
+                {recruiter.linkedin && (
+                  <div>
+                    <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
+                      LinkedIn
+                    </p>
+                    <a
+                      href={recruiter.linkedin}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        color: '#0ea5e9',
+                        textDecoration: 'none',
+                        fontSize: '0.95rem',
+                        fontWeight: '500',
+                      }}
+                    >
+                      View Profile →
+                    </a>
+                  </div>
+                )}
                 <div>
                   <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
                     Company
