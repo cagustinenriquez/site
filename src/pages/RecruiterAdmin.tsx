@@ -202,7 +202,6 @@ export function RecruiterAdmin() {
                 </label>
                 <input
                   type="email"
-                  required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   style={{
