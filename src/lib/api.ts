@@ -32,6 +32,43 @@ interface CreatePostPayload {
   tags?: string[]
 }
 
+interface Recruiter {
+  id: number | string
+  name: string
+  company: string
+  email: string
+  bio?: string
+  reputation_score: number
+  total_placements: number
+  average_rating: number
+  created_at?: string
+  updated_at?: string
+}
+
+interface RecruitersResponse {
+  recruiters: Recruiter[]
+  total: number
+  page: number
+  limit: number
+}
+
+interface CreateRecruiterPayload {
+  name: string
+  company: string
+  email: string
+  bio?: string
+}
+
+interface UpdateRecruiterPayload {
+  name?: string
+  company?: string
+  email?: string
+  bio?: string
+  reputation_score?: number
+  total_placements?: number
+  average_rating?: number
+}
+
 class ApiClient {
   private token: string | null = null
   private refreshToken: string | null = null
@@ -149,7 +186,49 @@ class ApiClient {
       method: 'DELETE',
     })
   }
+
+  async getRecruiters(page = 1, limit = 10, sort?: string, search?: string): Promise<RecruitersResponse> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    })
+    if (sort) params.append('sort', sort)
+    if (search) params.append('search', search)
+    return this.request(`/recruiters?${params}`)
+  }
+
+  async getRecruiter(id: number | string): Promise<Recruiter> {
+    return this.request(`/recruiters/${id}`)
+  }
+
+  async createRecruiter(recruiter: CreateRecruiterPayload): Promise<Recruiter> {
+    return this.request('/recruiters', {
+      method: 'POST',
+      body: JSON.stringify(recruiter),
+    })
+  }
+
+  async updateRecruiter(id: number | string, recruiter: UpdateRecruiterPayload): Promise<Recruiter> {
+    return this.request(`/recruiters/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(recruiter),
+    })
+  }
+
+  async deleteRecruiter(id: number | string): Promise<void> {
+    await this.request(`/recruiters/${id}`, {
+      method: 'DELETE',
+    })
+  }
 }
 
 export const api = new ApiClient()
-export type { Post, PostsResponse, CreatePostPayload }
+export type {
+  Post,
+  PostsResponse,
+  CreatePostPayload,
+  Recruiter,
+  RecruitersResponse,
+  CreateRecruiterPayload,
+  UpdateRecruiterPayload,
+}
