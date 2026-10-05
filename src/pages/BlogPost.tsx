@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
 import mermaid from 'mermaid'
@@ -219,6 +220,7 @@ export function BlogPost() {
             {/* Content */}
             <div style={{ color: '#cbd5e1', lineHeight: '1.8', marginBottom: '2rem' }}>
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
                   code: CodeBlock,
                   img: ({ src, alt }) => (
@@ -233,6 +235,56 @@ export function BlogPost() {
                         border: '1px solid rgba(148, 163, 184, 0.2)',
                       }}
                     />
+                  ),
+                  table: ({ children }) => (
+                    <div style={{ overflowX: 'auto', margin: '1.5rem 0' }}>
+                      <table style={{
+                        width: '100%',
+                        borderCollapse: 'collapse',
+                        border: '1px solid rgba(148, 163, 184, 0.3)',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                      }}>
+                        {children}
+                      </table>
+                    </div>
+                  ),
+                  thead: ({ children }) => (
+                    <thead style={{ background: 'rgba(14, 165, 233, 0.15)' }}>
+                      {children}
+                    </thead>
+                  ),
+                  tbody: ({ children }) => (
+                    <tbody>
+                      {children}
+                    </tbody>
+                  ),
+                  tr: ({ children }) => (
+                    <tr style={{
+                      borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
+                    }}>
+                      {children}
+                    </tr>
+                  ),
+                  th: ({ children }) => (
+                    <th style={{
+                      padding: '0.75rem 1rem',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: '#0ea5e9',
+                      borderRight: '1px solid rgba(148, 163, 184, 0.2)',
+                    }}>
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td style={{
+                      padding: '0.75rem 1rem',
+                      color: '#cbd5e1',
+                      borderRight: '1px solid rgba(148, 163, 184, 0.1)',
+                    }}>
+                      {children}
+                    </td>
                   ),
                 }}
               >
