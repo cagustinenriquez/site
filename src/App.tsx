@@ -15,7 +15,11 @@ import BlogPost from './pages/BlogPost'
 import BlogEditor from './pages/BlogEditor'
 import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
+import RecruiterList from './pages/RecruiterList'
+import RecruiterProfile from './pages/RecruiterProfile'
+import RecruiterAdmin from './pages/RecruiterAdmin'
 import { Navbar } from './components/Navbar'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 const schools = [
   {
@@ -192,6 +196,16 @@ function AppRoutes({ onContactClick }: { onContactClick: () => void }) {
       <Route path="/blog/create" element={<BlogEditor />} />
       <Route path="/blog/:slug/edit" element={<BlogEditor />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/recruiters" element={<RecruiterList />} />
+      <Route path="/recruiters/:id" element={<RecruiterProfile />} />
+      <Route
+        path="/admin/recruiters"
+        element={
+          <ProtectedRoute>
+            <RecruiterAdmin />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   )
 }
