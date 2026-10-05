@@ -1,3 +1,5 @@
+# Cloudflare Pages configuration
+# Build output is deployed automatically from dist/
 "$schema" = "./node_modules/wrangler/config-schema.json"
 name = "site"
 pages_build_output_dir = "./dist"
