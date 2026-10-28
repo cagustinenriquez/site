@@ -50,6 +50,11 @@ export function Navbar({ onContactClick, showBack }: NavbarProps) {
                 Philosophy
               </a>
             </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/motzworld/">
+                Game
+              </a>
+            </li>
           </ul>
           <div className="d-flex gap-2">
             <button className="btn btn-primary" onClick={onContactClick}>
