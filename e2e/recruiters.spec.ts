@@ -1,226 +1,292 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page, type Route } from '@playwright/test';
 
-test.describe('Recruiter Management', () => {
-  test.describe('RecruiterList Page', () => {
-    test('should load recruiters list page', async ({ page }) => {
-      await page.goto('/recruiters', { waitUntil: 'load' });
+// These tests run against a fake API (below) instead of the real backend, so
+// they need no credentials and don't depend on whatever data production has.
 
-      // Check header is visible
-      await expect(page.locator('h1:has-text("Recruiters")')).toBeVisible({ timeout: 5000 });
-      await expect(page.locator('text=Browse and connect with top recruiters')).toBeVisible({ timeout: 5000 });
-    });
+const USERNAME = 'admin';
+const PASSWORD = 'test-password';
 
-    test('should display search input and sort selector', async ({ page }) => {
-      await page.goto('/recruiters', { waitUntil: 'load' });
+interface Recruiter {
+  id: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string | null;
+  linkedin: string | null;
+  notes: string | null;
+  reputation: number;
+  total_placements: number;
+  average_rating: number;
+  created_at: string;
+  updated_at: string;
+}
 
-      // Check search input exists
-      const searchInput = page.locator('input[placeholder*="Search"]');
-      await expect(searchInput).toBeVisible({ timeout: 5000 });
+function makeRecruiter(id: number, fields: Partial<Recruiter>): Recruiter {
+  return {
+    id: String(id),
+    name: 'Unnamed',
+    company: 'Unknown',
+    email: '',
+    phone: null,
+    linkedin: null,
+    notes: null,
+    reputation: 0,
+    total_placements: 0,
+    average_rating: 0,
+    created_at: '2026-10-28T12:00:00',
+    updated_at: '2026-10-28T12:00:00',
+    ...fields,
+  };
+}
 
-      // Check sort dropdown exists
-      const sortSelect = page.locator('select');
-      await expect(sortSelect).toBeVisible({ timeout: 5000 });
-    });
+/**
+ * In-memory stand-in for the backend's /auth and /recruiters endpoints.
+ * Mirrors the real API: recruiter reads and writes need a valid access token.
+ */
+class FakeApi {
+  recruiters: Recruiter[] = [
+    makeRecruiter(1, { name: 'Alice Smith', company: 'Acme', reputation: 5, total_placements: 2, average_rating: 4.5 }),
+    makeRecruiter(2, { name: 'Bob Jones', company: 'Globex', reputation: -3, notes: 'Ghosted after the final round' }),
+    makeRecruiter(3, { name: 'Carol White', company: 'Acme', reputation: 1, total_placements: 7, average_rating: 3.0 }),
+  ];
+  private nextId = 4;
+  private validAccessTokens = new Set<string>();
+  private tokenCounter = 0;
+  /** Set to true to simulate the backend no longer accepting the user's tokens */
+  revokeAll = false;
 
-    test('should have pagination controls', async ({ page }) => {
-      await page.goto('/recruiters', { waitUntil: 'load' });
+  private issueTokens() {
+    const n = ++this.tokenCounter;
+    const access = `access-${n}`;
+    this.validAccessTokens.add(access);
+    return { access_token: access, refresh_token: `refresh-${n}`, token_type: 'bearer' };
+  }
 
-      // Look for pagination buttons (may or may not exist depending on data)
-      const prevButton = page.locator('button:has-text("Previous")');
-      const nextButton = page.locator('button:has-text("Next")');
+  private isAuthorized(route: Route): boolean {
+    const header = route.request().headers()['authorization'] ?? '';
+    const token = header.replace(/^Bearer /, '');
+    return !this.revokeAll && this.validAccessTokens.has(token);
+  }
 
-      // At least one should exist in the page structure
-      const paginationExists = await prevButton.isVisible().catch(() => false) ||
-                               await nextButton.isVisible().catch(() => false);
-      // This is just checking the structure exists, may be disabled
-      await expect(page.locator('text=/Page.*of/')).toBeVisible().catch(() => {
-        // OK if pagination text doesn't exist (means only 1 page)
-      });
-    });
-
-    test('should allow filtering by sort options', async ({ page }) => {
-      await page.goto('/recruiters');
-      // Load wait removed for faster tests
-
-      const sortSelect = page.locator('select');
-
-      // Test different sort options
-      await sortSelect.selectOption('reputation');
-      // Load wait removed for faster tests
-
-      await sortSelect.selectOption('total_placements');
-      // Load wait removed for faster tests
-
-      await sortSelect.selectOption('average_rating');
-      // Load wait removed for faster tests
-    });
-
-    test('should allow searching by name/company', async ({ page }) => {
-      await page.goto('/recruiters');
-      // Load wait removed for faster tests
-
-      const searchInput = page.locator('input[placeholder*="Search"]');
-
-      // Type in search
-      await searchInput.fill('test');
-      // Load wait removed for faster tests
-
-      // Clear search
-      await searchInput.clear();
-      // Load wait removed for faster tests
-    });
-
-    test('should navigate to recruiter profile on click', async ({ page }) => {
-      await page.goto('/recruiters');
-      // Load wait removed for faster tests
-
-      // Try to find and click first recruiter card
-      const firstCard = page.locator('a').filter({ has: page.locator('h3') }).first();
-      const isVisible = await firstCard.isVisible().catch(() => false);
-
-      if (isVisible) {
-        await firstCard.click();
-        // Should navigate to /recruiters/:id
-        await expect(page).toHaveURL(/\/recruiters\/\d+$/);
-      }
-    });
-  });
-
-  test.describe('RecruiterProfile Page', () => {
-    test('should load profile page for valid recruiter ID', async ({ page }) => {
-      // Try to navigate directly with ID 1 (may or may not exist)
-      await page.goto('/recruiters/1', { waitUntil: 'networkidle' }).catch(() => {
-        // OK if not found
+  async handle(route: Route) {
+    const request = route.request();
+    const url = new URL(request.url());
+    const method = request.method();
+    const path = url.pathname;
+    const body = request.postDataJSON?.() ?? null;
+    const json = (status: number, data: unknown) =>
+      route.fulfill({
+        status,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify(data),
       });
 
-      // If page loaded, check for expected elements
-      const backButton = page.locator('button:has-text("Back to Recruiters")');
-      if (await backButton.isVisible().catch(() => false)) {
-        await expect(backButton).toBeVisible();
+    if (method === 'OPTIONS') {
+      return route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': '*',
+          'Access-Control-Allow-Headers': '*',
+        },
+      });
+    }
+
+    if (path === '/auth/login') {
+      if (body?.username === USERNAME && body?.password === PASSWORD) {
+        return json(200, this.issueTokens());
       }
-    });
+      return json(401, { detail: 'Invalid username or password' });
+    }
 
-    test('should display back button on profile page', async ({ page }) => {
-      await page.goto('/recruiters');
-      // Load wait removed for faster tests
-
-      // Try to navigate to first recruiter
-      const firstCard = page.locator('a').filter({ has: page.locator('h3') }).first();
-      const isVisible = await firstCard.isVisible().catch(() => false);
-
-      if (isVisible) {
-        await firstCard.click();
-        // Load wait removed for faster tests
-
-        // Check back button
-        const backButton = page.locator('button:has-text("Back to Recruiters")');
-        await expect(backButton).toBeVisible();
-
-        // Click and verify navigation
-        await backButton.click();
-        await expect(page).toHaveURL('/recruiters');
+    if (path === '/auth/refresh') {
+      if (!this.revokeAll && String(body?.refresh_token).startsWith('refresh-')) {
+        return json(200, this.issueTokens());
       }
-    });
-  });
+      return json(401, { detail: 'Invalid or expired refresh token' });
+    }
 
-  test.describe('RecruiterAdmin Page - Authentication', () => {
-    test.skip('should redirect unauthenticated users to login', async ({ page }) => {
-      // Note: Skipped because localStorage.clear() causes SecurityError in Playwright
-      // The ProtectedRoute component is verified to work via code inspection
-      // To test this properly, we would need:
-      // 1. A way to properly clear auth state in Playwright
-      // 2. Or mock the API authentication
+    if (!this.isAuthorized(route)) {
+      return json(401, { detail: 'Invalid authentication credentials' });
+    }
+
+    if (path === '/recruiters' && method === 'GET') {
+      const page = Number(url.searchParams.get('page') ?? 1);
+      const limit = Number(url.searchParams.get('limit') ?? 10);
+      const sort = (url.searchParams.get('sort') ?? 'reputation') as keyof Recruiter;
+      const search = url.searchParams.get('search')?.toLowerCase();
+      let list = [...this.recruiters];
+      if (search) {
+        list = list.filter((r) => r.name.toLowerCase().includes(search) || r.company.toLowerCase().includes(search));
+      }
+      list.sort((a, b) => (b[sort] as number) - (a[sort] as number));
+      return json(200, { recruiters: list.slice((page - 1) * limit, page * limit), total: list.length, page, limit });
+    }
+
+    if (path === '/recruiters' && method === 'POST') {
+      const recruiter = makeRecruiter(this.nextId++, body);
+      this.recruiters.push(recruiter);
+      return json(200, recruiter);
+    }
+
+    const match = path.match(/^\/recruiters\/(\w+)$/);
+    if (match) {
+      const index = this.recruiters.findIndex((r) => r.id === match[1]);
+      if (index === -1) return json(404, { detail: 'Recruiter not found' });
+      if (method === 'GET') return json(200, this.recruiters[index]);
+      if (method === 'PUT') {
+        this.recruiters[index] = { ...this.recruiters[index], ...body };
+        return json(200, this.recruiters[index]);
+      }
+      if (method === 'DELETE') {
+        this.recruiters.splice(index, 1);
+        return json(200, { detail: 'Recruiter deleted successfully' });
+      }
+    }
+
+    return json(404, { detail: 'Not found' });
+  }
+}
+
+async function useFakeApi(page: Page): Promise<FakeApi> {
+  const api = new FakeApi();
+  // Only API calls: page navigations to /recruiters on the dev server pass through
+  await page.route(
+    (url) => /^\/(auth|recruiters)(\/|$)/.test(url.pathname),
+    (route) => (route.request().resourceType() === 'document' ? route.fallback() : api.handle(route)),
+  );
+  return api;
+}
+
+async function logIn(page: Page) {
+  await page.locator('input[id="username"]').fill(USERNAME);
+  await page.locator('input[id="password"]').fill(PASSWORD);
+  await page.locator('button:has-text("Unlock the Spellbook")').click();
+}
+
+/** Go to a login-only page: get redirected to login, log in, land back on it */
+async function visitLoggedIn(page: Page, path: string) {
+  await page.goto(path);
+  await expect(page).toHaveURL(/\/blog\/login$/);
+  await logIn(page);
+  await expect(page).toHaveURL(new RegExp(`${path}$`));
+}
+
+function formField(page: Page, label: string) {
+  return page.locator(`div:has(> label:text-is("${label}"))`).locator('input, textarea');
+}
+
+test.describe('Recruiters', () => {
+  test.describe('Login required', () => {
+    for (const path of ['/recruiters', '/recruiters/1', '/admin/recruiters']) {
+      test(`${path} redirects to login when logged out`, async ({ page }) => {
+        await useFakeApi(page);
+        await page.goto(path);
+        await expect(page).toHaveURL(/\/blog\/login$/);
+        await expect(page.locator('text=Enter the Spellbook')).toBeVisible();
+      });
+    }
+
+    test('returns to the original page after logging in', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters/2');
+      await expect(page.locator('h1:has-text("Bob Jones")')).toBeVisible();
     });
 
-    test('should show login page with form', async ({ page }) => {
+    test('shows an error for a wrong password', async ({ page }) => {
+      await useFakeApi(page);
       await page.goto('/blog/login');
-
-      // Check for login form elements
-      const titleText = page.locator('text=Enter the Spellbook');
-      await expect(titleText).toBeVisible({ timeout: 5000 });
-      await expect(page.locator('input[id="username"]')).toBeVisible({ timeout: 5000 });
-      await expect(page.locator('input[id="password"]')).toBeVisible({ timeout: 5000 });
-      await expect(page.locator('button:has-text("Unlock the Spellbook")')).toBeVisible({ timeout: 5000 });
+      await page.locator('input[id="username"]').fill(USERNAME);
+      await page.locator('input[id="password"]').fill('wrong');
+      await page.locator('button:has-text("Unlock the Spellbook")').click();
+      await expect(page.locator('text=Invalid username or password')).toBeVisible();
     });
 
-    test('should accept input in login form', async ({ page }) => {
-      await page.goto('/blog/login');
+    test('sends you to login when the session is no longer accepted', async ({ page }) => {
+      const api = await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters');
+      await expect(page.locator('h3:has-text("Alice Smith")')).toBeVisible();
 
-      const usernameInput = page.locator('input[id="username"]');
-      await usernameInput.waitFor({ timeout: 5000 });
+      // e.g. logged in via the admin fallback, then a real user was created
+      api.revokeAll = true;
+      await page.locator('input[placeholder*="Search"]').fill('acme');
 
-      // Fill login form
-      await usernameInput.fill('testuser');
-      await page.locator('input[id="password"]').fill('testpass');
-
-      // Verify inputs have values
-      await expect(usernameInput).toHaveValue('testuser');
-      await expect(page.locator('input[id="password"]')).toHaveValue('testpass');
+      await expect(page).toHaveURL(/\/blog\/login$/);
+      await expect(page.locator('text=Session expired. Please log in again.')).toBeVisible();
     });
   });
 
-  test.describe('RecruiterAdmin Page - CRUD Operations', () => {
-    test.skip('should display recruiter admin table when authenticated', async ({ page }) => {
-      // Note: This test is skipped because it requires valid credentials
-      // To enable: set up test credentials or mock authentication
-
-      // This would require:
-      // 1. Valid test credentials
-      // 2. Backend with recruiter data
-      // 3. Proper authentication flow
-
-      // Example of what the test would do:
-      // await page.goto('/blog/login');
-      // await page.locator('input[id="username"]').fill('test_user');
-      // await page.locator('input[id="password"]').fill('test_password');
-      // await page.locator('button:has-text("Unlock")').click();
-      // await page.goto('/admin/recruiters');
-      // await expect(page.locator('table')).toBeVisible();
+  test.describe('List page', () => {
+    test('shows recruiters sorted by reputation', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters');
+      await expect(page.locator('h1:has-text("Recruiters")')).toBeVisible();
+      await expect(page.locator('h3')).toHaveText(['Alice Smith', 'Carol White', 'Bob Jones']);
     });
 
-    test.skip('should allow adding a new recruiter', async ({ page }) => {
-      // Requires authentication - see note above
+    test('re-sorts by placements', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters');
+      await page.locator('select').selectOption('total_placements');
+      await expect(page.locator('h3')).toHaveText(['Carol White', 'Alice Smith', 'Bob Jones']);
     });
 
-    test.skip('should allow editing an existing recruiter', async ({ page }) => {
-      // Requires authentication - see note above
+    test('searches by company', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters');
+      await page.locator('input[placeholder*="Search"]').fill('globex');
+      await expect(page.locator('h3')).toHaveText(['Bob Jones']);
     });
 
-    test.skip('should allow deleting a recruiter', async ({ page }) => {
-      // Requires authentication - see note above
+    test('opens a profile and goes back', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters');
+      await page.locator('a').filter({ has: page.locator('h3:has-text("Bob Jones")') }).click();
+      await expect(page).toHaveURL(/\/recruiters\/2$/);
+      await expect(page.locator('text=Ghosted after the final round')).toBeVisible();
+
+      await page.locator('button:has-text("Back to Recruiters")').click();
+      await expect(page).toHaveURL(/\/recruiters$/);
     });
   });
 
-  test.describe('Recruiter Data Display', () => {
-    test('should display reputation with appropriate color coding', async ({ page }) => {
-      await page.goto('/recruiters');
-      // Load wait removed for faster tests
+  test.describe('Admin page', () => {
+    test('adds a recruiter', async ({ page }) => {
+      const api = await useFakeApi(page);
+      await visitLoggedIn(page, '/admin/recruiters');
 
-      // Look for reputation display
-      const reputationText = page.locator('text=/Reputation/i');
-      if (await reputationText.isVisible().catch(() => false)) {
-        await expect(reputationText).toBeVisible();
-      }
+      await page.locator('button:has-text("Add Recruiter")').click();
+      await formField(page, 'Name').fill('Dana Lee');
+      await formField(page, 'Company').fill('Initech');
+      await formField(page, 'Reputation').fill('-2');
+      await page.locator('button[type="submit"]:has-text("Create")').click();
+
+      await expect(page.locator('tr', { hasText: 'Dana Lee' })).toContainText('-2');
+      expect(api.recruiters.find((r) => r.name === 'Dana Lee')?.company).toBe('Initech');
     });
 
-    test('should display recruiter stats on profile', async ({ page }) => {
-      await page.goto('/recruiters');
-      // Load wait removed for faster tests
+    test('edits a recruiter', async ({ page }) => {
+      const api = await useFakeApi(page);
+      await visitLoggedIn(page, '/admin/recruiters');
 
-      // Try to navigate to first recruiter
-      const firstCard = page.locator('a').filter({ has: page.locator('h3') }).first();
-      const isVisible = await firstCard.isVisible().catch(() => false);
+      await page.locator('tr', { hasText: 'Bob Jones' }).locator('button').first().click();
+      await expect(formField(page, 'Name')).toHaveValue('Bob Jones');
+      await formField(page, 'Company').fill('Globex Corp');
+      await page.locator('button[type="submit"]:has-text("Update")').click();
 
-      if (isVisible) {
-        await firstCard.click();
-        // Load wait removed for faster tests
+      await expect(page.locator('tr', { hasText: 'Bob Jones' })).toContainText('Globex Corp');
+      expect(api.recruiters.find((r) => r.id === '2')?.company).toBe('Globex Corp');
+    });
 
-        // Look for stat displays
-        const reputationStat = page.locator('text=Reputation').first();
-        if (await reputationStat.isVisible().catch(() => false)) {
-          await expect(reputationStat).toBeVisible();
-        }
-      }
+    test('deletes a recruiter', async ({ page }) => {
+      const api = await useFakeApi(page);
+      await visitLoggedIn(page, '/admin/recruiters');
+
+      await page.locator('tr', { hasText: 'Carol White' }).locator('button').last().click();
+
+      await expect(page.locator('tr', { hasText: 'Carol White' })).toHaveCount(0);
+      expect(api.recruiters.map((r) => r.name)).toEqual(['Alice Smith', 'Bob Jones']);
     });
   });
 });
