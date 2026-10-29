@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import type { ComponentPropsWithoutRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
@@ -11,6 +12,113 @@ import { calculateReadingTime } from '@/lib/utils'
 import { Edit2, Trash2 } from 'lucide-react'
 
 mermaid.initialize({ startOnLoad: true, theme: 'dark' })
+
+// Renders a ```mermaid block. Its own component so the effect runs on every
+// render (hooks can't sit behind the `language === 'mermaid'` check).
+function MermaidDiagram({ code }: { code: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (ref.current) {
+      mermaid.contentLoaded()
+    }
+  }, [code])
+
+  return (
+    <div
+      ref={ref}
+      className="mermaid"
+      style={{ margin: '1.5rem 0', display: 'flex', justifyContent: 'center' }}
+    >
+      {code}
+    </div>
+  )
+}
+
+// react-markdown's `code` renderer. Defined outside BlogPost so React keeps the
+// same component between renders instead of remounting every code block.
+type CodeBlockProps = ComponentPropsWithoutRef<'code'> & { inline?: boolean }
+
+function CodeBlock({ inline, className, children }: CodeBlockProps) {
+  const code = String(children).replace(/\n$/, '')
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  // Inline code (single backticks)
+  if (inline || !className) {
+    return (
+      <code style={{
+        background: 'rgba(14, 165, 233, 0.15)',
+        padding: '0.2rem 0.4rem',
+        borderRadius: '4px',
+        color: '#0ea5e9',
+        fontFamily: 'monospace',
+        fontSize: '0.9em',
+        display: 'inline',
+        whiteSpace: 'nowrap',
+      }}>
+        {children}
+      </code>
+    )
+  }
+
+  // Block code (triple backticks)
+  const match = /language-(\w+)/.exec(className)
+  const language = match ? match[1] : 'plaintext'
+
+  // Mermaid diagram
+  if (language === 'mermaid') {
+    return <MermaidDiagram code={code} />
+  }
+
+  let highlightedCode = code
+  try {
+    highlightedCode = hljs.highlight(code, { language, ignoreIllegals: true }).value
+  } catch {
+    highlightedCode = hljs.highlightAuto(code).value
+  }
+
+  return (
+    <div style={{ position: 'relative', margin: '1rem 0', borderRadius: '8px', overflow: 'hidden', background: '#282c34' }}>
+      <button
+        onClick={handleCopy}
+        style={{
+          position: 'absolute',
+          top: '0.75rem',
+          right: '0.75rem',
+          padding: '0.5rem 0.75rem',
+          background: copied ? 'rgba(34, 197, 94, 0.3)' : 'rgba(148, 163, 184, 0.2)',
+          border: '1px solid ' + (copied ? 'rgba(34, 197, 94, 0.5)' : 'rgba(148, 163, 184, 0.3)'),
+          borderRadius: '4px',
+          color: copied ? '#22c55e' : '#cbd5e1',
+          fontSize: '0.75rem',
+          fontWeight: '500',
+          cursor: 'pointer',
+          transition: 'all 200ms',
+          zIndex: 10,
+        }}
+        onMouseEnter={(e) => !copied && (e.currentTarget.style.background = 'rgba(148, 163, 184, 0.3)')}
+        onMouseLeave={(e) => !copied && (e.currentTarget.style.background = 'rgba(148, 163, 184, 0.2)')}
+      >
+        {copied ? '✓ Copied' : 'Copy'}
+      </button>
+      <pre style={{ margin: '0', borderRadius: '0', overflow: 'auto', padding: '1rem', background: 'none', lineHeight: '1.6', fontSize: '0.9rem' }}>
+        <code
+          dangerouslySetInnerHTML={{ __html: highlightedCode }}
+          style={{ fontFamily: 'monospace', background: 'none' }}
+        />
+        <style>{`
+          pre code span { background: none !important; }
+        `}</style>
+      </pre>
+    </div>
+  )
+}
 
 export function BlogPost() {
   const { slug } = useParams<{ slug: string }>()
@@ -65,102 +173,6 @@ export function BlogPost() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-  }
-
-  const CodeBlock = ({ inline, className, children }: any) => {
-    const code = String(children).replace(/\n$/, '')
-    const mermaidRef = useRef<HTMLDivElement>(null)
-    const [copied, setCopied] = useState(false)
-
-    const handleCopy = () => {
-      navigator.clipboard.writeText(code)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
-
-    // Inline code (single backticks)
-    if (inline || !className) {
-      return (
-        <code style={{
-          background: 'rgba(14, 165, 233, 0.15)',
-          padding: '0.2rem 0.4rem',
-          borderRadius: '4px',
-          color: '#0ea5e9',
-          fontFamily: 'monospace',
-          fontSize: '0.9em',
-          display: 'inline',
-          whiteSpace: 'nowrap',
-        }}>
-          {children}
-        </code>
-      )
-    }
-
-    // Block code (triple backticks)
-    const match = /language-(\w+)/.exec(className)
-    const language = match ? match[1] : 'plaintext'
-
-    // Mermaid diagram
-    if (language === 'mermaid') {
-      useEffect(() => {
-        if (mermaidRef.current) {
-          mermaid.contentLoaded()
-        }
-      }, [code])
-
-      return (
-        <div
-          ref={mermaidRef}
-          className="mermaid"
-          style={{ margin: '1.5rem 0', display: 'flex', justifyContent: 'center' }}
-        >
-          {code}
-        </div>
-      )
-    }
-
-    let highlightedCode = code
-    try {
-      highlightedCode = hljs.highlight(code, { language, ignoreIllegals: true }).value
-    } catch (e) {
-      highlightedCode = hljs.highlightAuto(code).value
-    }
-
-    return (
-      <div style={{ position: 'relative', margin: '1rem 0', borderRadius: '8px', overflow: 'hidden', background: '#282c34' }}>
-        <button
-          onClick={handleCopy}
-          style={{
-            position: 'absolute',
-            top: '0.75rem',
-            right: '0.75rem',
-            padding: '0.5rem 0.75rem',
-            background: copied ? 'rgba(34, 197, 94, 0.3)' : 'rgba(148, 163, 184, 0.2)',
-            border: '1px solid ' + (copied ? 'rgba(34, 197, 94, 0.5)' : 'rgba(148, 163, 184, 0.3)'),
-            borderRadius: '4px',
-            color: copied ? '#22c55e' : '#cbd5e1',
-            fontSize: '0.75rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 200ms',
-            zIndex: 10,
-          }}
-          onMouseEnter={(e) => !copied && (e.currentTarget.style.background = 'rgba(148, 163, 184, 0.3)')}
-          onMouseLeave={(e) => !copied && (e.currentTarget.style.background = 'rgba(148, 163, 184, 0.2)')}
-        >
-          {copied ? '✓ Copied' : 'Copy'}
-        </button>
-        <pre style={{ margin: '0', borderRadius: '0', overflow: 'auto', padding: '1rem', background: 'none', lineHeight: '1.6', fontSize: '0.9rem' }}>
-          <code
-            dangerouslySetInnerHTML={{ __html: highlightedCode }}
-            style={{ fontFamily: 'monospace', background: 'none' }}
-          />
-          <style>{`
-            pre code span { background: none !important; }
-          `}</style>
-        </pre>
-      </div>
-    )
   }
 
   return (
