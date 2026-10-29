@@ -2,15 +2,22 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '@/lib/api'
 
+interface LoginState {
+  from?: { pathname: string }
+  message?: string
+}
+
 export function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const state = location.state as LoginState | null
+  // e.g. "Session expired" when redirected here after the API rejected our tokens
+  const [error, setError] = useState<string | null>(state?.message ?? null)
 
-  const from = (location.state as any)?.from?.pathname || '/admin'
+  const from = state?.from?.pathname || '/admin'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

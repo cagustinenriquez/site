@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Dialog,
   DialogBackdrop,
@@ -7,7 +7,7 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
 import BlogList from './pages/BlogList'
@@ -20,6 +20,7 @@ import RecruiterProfile from './pages/RecruiterProfile'
 import RecruiterAdmin from './pages/RecruiterAdmin'
 import { Navbar } from './components/Navbar'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { api, SESSION_EXPIRED_MESSAGE } from './lib/api'
 
 const schools = [
   {
@@ -186,6 +187,26 @@ const queryClient = new QueryClient({
   },
 })
 
+// When the API rejects our tokens, drop cached data and go to the login page.
+// After logging in, Login sends the user back to the page they were on.
+function SessionExpiredRedirect() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    api.onSessionExpired(() => {
+      queryClient.clear()
+      navigate('/blog/login', {
+        replace: true,
+        state: { from: location, message: SESSION_EXPIRED_MESSAGE },
+      })
+    })
+    return () => api.onSessionExpired(null)
+  }, [navigate, location])
+
+  return null
+}
+
 function AppRoutes({ onContactClick }: { onContactClick: () => void }) {
   return (
     <Routes>
@@ -196,8 +217,23 @@ function AppRoutes({ onContactClick }: { onContactClick: () => void }) {
       <Route path="/blog/create" element={<BlogEditor />} />
       <Route path="/blog/:slug/edit" element={<BlogEditor />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
-      <Route path="/recruiters" element={<RecruiterList />} />
-      <Route path="/recruiters/:id" element={<RecruiterProfile />} />
+      {/* The API requires a login to read recruiters */}
+      <Route
+        path="/recruiters"
+        element={
+          <ProtectedRoute>
+            <RecruiterList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recruiters/:id"
+        element={
+          <ProtectedRoute>
+            <RecruiterProfile />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/admin/recruiters"
         element={
@@ -216,6 +252,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
+        <SessionExpiredRedirect />
         <Navbar onContactClick={() => setIsContactOpen(true)} />
         <AppRoutes onContactClick={() => setIsContactOpen(true)} />
 

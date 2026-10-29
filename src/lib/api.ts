@@ -76,13 +76,31 @@ interface UpdateRecruiterPayload {
   average_rating?: number
 }
 
+export const SESSION_EXPIRED_MESSAGE = 'Session expired. Please log in again.'
+
+// Older builds could store the string "undefined" when the API sent no token
+function readStored(key: string): string | null {
+  const value = localStorage.getItem(key)
+  return value && value !== 'undefined' && value !== 'null' ? value : null
+}
+
 class ApiClient {
   private token: string | null = null
   private refreshToken: string | null = null
+  private sessionExpiredHandler: (() => void) | null = null
 
   constructor() {
-    this.token = localStorage.getItem('access_token')
-    this.refreshToken = localStorage.getItem('refresh_token')
+    this.token = readStored('access_token')
+    this.refreshToken = readStored('refresh_token')
+  }
+
+  private setTokens(access: string, refresh?: string): void {
+    this.token = access
+    localStorage.setItem('access_token', access)
+    if (refresh) {
+      this.refreshToken = refresh
+      localStorage.setItem('refresh_token', refresh)
+    }
   }
 
   private async request<T>(
@@ -103,8 +121,9 @@ class ApiClient {
       headers,
     })
 
-    // If 401, try to refresh token and retry
-    if (response.status === 401 && this.refreshToken) {
+    // If 401, try to refresh token and retry. Never for /auth/* calls: a wrong
+    // password should say so, and a failed refresh must not refresh again.
+    if (response.status === 401 && this.refreshToken && !endpoint.startsWith('/auth/')) {
       try {
         await this.refreshAccessToken()
         headers['Authorization'] = `Bearer ${this.token}`
@@ -112,15 +131,22 @@ class ApiClient {
           ...options,
           headers,
         })
-      } catch (err) {
+      } catch {
         this.logout()
-        throw new Error('Session expired. Please log in again.')
+        this.sessionExpiredHandler?.()
+        throw new Error(SESSION_EXPIRED_MESSAGE)
       }
     }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}))
-      throw new Error(error.detail || `HTTP ${response.status}`)
+      // FastAPI errors use `detail`; rate-limit (429) errors use `error`
+      const message =
+        (typeof error.detail === 'string' && error.detail) ||
+        (typeof error.error === 'string' && error.error) ||
+        (response.status === 429 ? 'Too many requests. Please wait a minute and try again.' : '') ||
+        `HTTP ${response.status}`
+      throw new Error(message)
     }
 
     return response.json()
@@ -131,10 +157,7 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     })
-    this.token = data.access_token
-    this.refreshToken = data.refresh_token
-    localStorage.setItem('access_token', data.access_token)
-    localStorage.setItem('refresh_token', data.refresh_token)
+    this.setTokens(data.access_token, data.refresh_token)
     return data.access_token
   }
 
@@ -147,14 +170,21 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ refresh_token: this.refreshToken }),
     })
-    this.token = data.access_token
-    localStorage.setItem('access_token', data.access_token)
+    // The backend rotates the refresh token on every refresh
+    this.setTokens(data.access_token, data.refresh_token)
     return data.access_token
   }
 
   logout(): void {
     this.token = null
+    this.refreshToken = null
     localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+  }
+
+  /** Called when the refresh token is rejected, e.g. the user no longer exists */
+  onSessionExpired(handler: (() => void) | null): void {
+    this.sessionExpiredHandler = handler
   }
 
   isAuthenticated(): boolean {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { api } from '@/lib/api'
 
 interface NavbarProps {
@@ -9,6 +9,8 @@ interface NavbarProps {
 
 export function Navbar({ onContactClick, showBack }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  // Re-render on navigation so Admin/Logout reflect login state right away
+  useLocation()
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark sticky-top" style={{ background: 'rgba(26, 26, 26, 0.95)', backdropFilter: 'blur(10px)' }}>
