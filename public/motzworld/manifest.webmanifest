@@ -1,0 +1,12 @@
+{
+  "name": "m0tz's world",
+  "short_name": "m0tz's world",
+  "description": "A neon-noir hacking platformer.",
+  "start_url": "/motzworld/",
+  "scope": "/motzworld/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#07060f",
+  "theme_color": "#07060f",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
