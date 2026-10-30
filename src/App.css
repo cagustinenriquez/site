@@ -798,6 +798,36 @@ html:has(.cyber-city) .navbar .btn-primary:hover {
   color: #05040d;
 }
 
+/* Admin (pink) and Logout (muted) buttons, shown when logged in */
+html:has(.cyber-city) .navbar .btn-outline-primary,
+html:has(.cyber-city) .navbar .btn-outline-secondary {
+  background: transparent;
+  font-family: var(--heading);
+  font-size: 0.85rem;
+}
+
+html:has(.cyber-city) .navbar .btn-outline-primary {
+  color: var(--accent-2);
+  border-color: rgba(255, 46, 136, 0.7);
+}
+
+html:has(.cyber-city) .navbar .btn-outline-primary:hover {
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+  color: #05040d;
+  box-shadow: 0 0 16px -4px rgba(255, 46, 136, 0.8);
+}
+
+html:has(.cyber-city) .navbar .btn-outline-secondary {
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+html:has(.cyber-city) .navbar .btn-outline-secondary:hover {
+  color: var(--ink);
+  border-color: var(--border-strong);
+}
+
 /* ---- m0tz in the contact panel ---- */
 .m0tz-card {
   display: flex;

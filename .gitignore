@@ -35,3 +35,6 @@ playwright/.auth
 
 # Wrangler local state
 .wrangler/
+
+# Personal notes
+TODO.md

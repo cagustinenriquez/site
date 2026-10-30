@@ -1,0 +1,541 @@
+/* Admin and login-only pages (login, dashboard, post editor, recruiters).
+   Built on the blog's neon-city classes in blog.css; tokens live in App.css. */
+
+.admin-shell {
+  max-width: 64rem;
+  padding-top: clamp(6rem, 12vh, 7.5rem);
+}
+
+.admin-shell.is-narrow {
+  max-width: 48rem;
+}
+
+.admin-shell.is-login {
+  max-width: 26rem;
+  min-height: 100vh;
+  min-height: 100svh;
+  align-content: center;
+  padding-top: 6rem;
+}
+
+.admin-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem 2rem;
+}
+
+.admin-title {
+  margin: 0.5rem 0 0.4rem;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  line-height: 1.1;
+  color: var(--ink);
+  text-shadow:
+    -2px 0 rgba(255, 46, 136, 0.5),
+    2px 0 rgba(45, 226, 230, 0.5),
+    0 0 26px rgba(45, 226, 230, 0.3);
+}
+
+.admin-subtitle {
+  margin: 0;
+  color: var(--muted);
+}
+
+.admin-panel {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  overflow: hidden;
+}
+
+/* Neon edge along the top of panels, same as the front page bands */
+.admin-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+  opacity: 0.8;
+}
+
+.admin-panel-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+
+/* ---- Primary button: filled neon ---- */
+.blog-btn-primary {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(45, 226, 230, 0.22), rgba(255, 46, 136, 0.18));
+  color: var(--ink);
+  box-shadow: 0 0 18px -8px rgba(45, 226, 230, 0.9);
+}
+
+.blog-btn-primary:hover:not(:disabled) {
+  color: var(--ink);
+  background: linear-gradient(135deg, rgba(45, 226, 230, 0.32), rgba(255, 46, 136, 0.26));
+}
+
+.blog-btn-block {
+  width: 100%;
+}
+
+/* Square icon buttons for edit/delete in lists */
+.admin-icon-btn {
+  padding: 0.5rem;
+}
+
+/* ---- Stats ---- */
+.admin-stat {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.admin-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: rgba(45, 226, 230, 0.08);
+  color: var(--accent);
+}
+
+.admin-stat-label {
+  margin: 0 0 0.2rem;
+  font-family: var(--heading);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-stat-value {
+  margin: 0;
+  font-family: var(--heading);
+  font-size: 2.25rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(45, 226, 230, 0.45);
+}
+
+/* ---- Post rows on the dashboard ---- */
+.admin-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.admin-row:hover {
+  border-color: var(--border-strong);
+  box-shadow:
+    var(--shadow),
+    0 10px 32px -14px rgba(45, 226, 230, 0.45);
+}
+
+.admin-row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-row-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.admin-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  font-family: var(--heading);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.admin-row-meta .blog-tags {
+  margin: 0;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ---- Forms ---- */
+.admin-form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.admin-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.admin-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-family: var(--heading);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+}
+
+.admin-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(5, 4, 13, 0.7);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.98rem;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-input::placeholder {
+  color: rgba(143, 134, 184, 0.6);
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(45, 226, 230, 0.15), 0 0 18px -6px rgba(45, 226, 230, 0.7);
+}
+
+textarea.admin-input {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.admin-input.is-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.92rem;
+}
+
+.admin-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.admin-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.admin-form-actions.is-end {
+  justify-content: flex-end;
+}
+
+/* ---- Recruiter table ---- */
+.admin-table-panel {
+  padding: 0;
+}
+
+.admin-table-scroll {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+}
+
+.admin-table th {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--heading);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid rgba(122, 60, 255, 0.12);
+  color: var(--ink-secondary);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table tbody tr {
+  transition: background 160ms ease;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(45, 226, 230, 0.05);
+}
+
+.admin-table .is-center {
+  text-align: center;
+}
+
+.admin-table .is-name {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.admin-table .is-small {
+  font-size: 0.85rem;
+}
+
+.admin-table .admin-actions {
+  justify-content: center;
+}
+
+.admin-num {
+  font-family: var(--heading);
+  font-weight: 600;
+}
+
+.admin-num.is-good {
+  color: #4ade80;
+}
+
+.admin-num.is-bad {
+  color: #ff6b81;
+}
+
+.admin-num.is-star {
+  color: #fbbf24;
+}
+
+/* ---- Login ---- */
+.admin-login-head {
+  text-align: center;
+}
+
+.admin-login-head svg {
+  display: block;
+  margin: 0 auto 0.75rem;
+  filter: drop-shadow(0 0 12px rgba(45, 226, 230, 0.45));
+}
+
+.admin-login-foot {
+  margin: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.admin-form .blog-error {
+  margin-bottom: 0.25rem;
+}
+
+/* ---- Recruiter list ---- */
+.rec-filters {
+  display: grid;
+  grid-template-columns: 1fr 13rem;
+  gap: 0.75rem;
+}
+
+select.admin-input {
+  appearance: none;
+  padding-right: 2.25rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+  background-position:
+    right 1.1rem center,
+    right 0.8rem center;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+select.admin-input option {
+  background: #0b0918;
+  color: var(--ink);
+}
+
+.rec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.rec-card {
+  height: 100%;
+}
+
+.rec-card .blog-card-title {
+  margin-bottom: 0.2rem;
+}
+
+.rec-company {
+  margin: 0 0 1.1rem;
+  font-family: var(--heading);
+  font-size: 0.82rem;
+  color: var(--accent-2);
+}
+
+.rec-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rec-stat-value {
+  margin: 0;
+  font-family: var(--heading);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.rec-stat-value.is-good {
+  color: #4ade80;
+}
+
+.rec-stat-value.is-bad {
+  color: #ff6b81;
+}
+
+.rec-stat-value.is-star {
+  color: #fbbf24;
+}
+
+.rec-rating {
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.rec-card .blog-card-meta {
+  justify-content: flex-start;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+/* ---- Recruiter profile ---- */
+.rec-back {
+  justify-self: start;
+}
+
+.rec-profile-head .admin-title {
+  margin-top: 0;
+}
+
+.rec-profile-company {
+  margin: 0;
+  font-family: var(--heading);
+  font-size: 1.05rem;
+  color: var(--accent-2);
+}
+
+.rec-notes {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.rec-notes p:last-child {
+  margin: 0;
+  color: var(--ink-secondary);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.rec-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.rec-profile-stats .admin-panel {
+  text-align: center;
+}
+
+.rec-profile-stats .rec-stat-value {
+  font-size: 2.25rem;
+}
+
+.rec-contact {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.rec-contact dt {
+  margin-bottom: 0.2rem;
+}
+
+.rec-contact dd {
+  margin: 0;
+  color: var(--ink-secondary);
+  overflow-wrap: anywhere;
+}
+
+.rec-contact a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.rec-contact a:hover {
+  text-shadow: 0 0 10px rgba(45, 226, 230, 0.6);
+}
+
+@media (max-width: 600px) {
+  .rec-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .rec-profile-stats {
+    gap: 0.5rem;
+  }
+
+  .rec-profile-stats .admin-panel {
+    padding: 1rem 0.5rem;
+  }
+
+  .rec-profile-stats .admin-stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+  }
+
+  .rec-profile-stats .rec-stat-value {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header > .blog-btn {
+    width: 100%;
+  }
+}
