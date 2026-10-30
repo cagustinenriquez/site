@@ -6,6 +6,15 @@ import { CyberCity } from '@/components/CyberCity'
 import './blog.css'
 import './admin.css'
 
+const EMPTY_STATS = { total_placements: '0', average_rating: '0' }
+
+function parseStats(stats: typeof EMPTY_STATS) {
+  return {
+    total_placements: parseInt(stats.total_placements) || 0,
+    average_rating: parseFloat(stats.average_rating) || 0,
+  }
+}
+
 export function RecruiterAdmin() {
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
@@ -21,6 +30,8 @@ export function RecruiterAdmin() {
     notes: '',
     reputation: 0,
   })
+  // Kept as typed text so partial input like "4." isn't cut off; converted on save
+  const [stats, setStats] = useState(EMPTY_STATS)
 
   const { data, isLoading: loading, isError, error } = useQuery({
     queryKey: ['recruiters-admin', page],
@@ -33,9 +44,17 @@ export function RecruiterAdmin() {
 
   // Create Recruiter
   const createMutation = useMutation({
-    mutationFn: (payload: CreateRecruiterPayload) => api.createRecruiter(payload),
+    // The API ignores placements and rating on create, so set them with a follow-up update
+    mutationFn: async ({ payload, extra }: { payload: CreateRecruiterPayload; extra: UpdateRecruiterPayload }) => {
+      const created = await api.createRecruiter(payload)
+      if (extra.total_placements || extra.average_rating) {
+        return api.updateRecruiter(created.id, extra)
+      }
+      return created
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recruiters-admin'] })
+      queryClient.invalidateQueries({ queryKey: ['recruiters'] })
       resetForm()
       setIsFormOpen(false)
     },
@@ -74,6 +93,10 @@ export function RecruiterAdmin() {
         notes: recruiter.notes || '',
         reputation: recruiter.reputation,
       })
+      setStats({
+        total_placements: String(recruiter.total_placements),
+        average_rating: String(recruiter.average_rating),
+      })
       setEditingId(id)
       setIsFormOpen(true)
     }
@@ -81,22 +104,27 @@ export function RecruiterAdmin() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const extra = parseStats(stats)
     if (editingId) {
       updateMutation.mutate({
         id: editingId,
-        data: formData,
+        data: { ...formData, ...extra },
       })
     } else {
-      createMutation.mutate(formData)
+      createMutation.mutate({ payload: formData, extra })
     }
   }
 
   const resetForm = () => {
     setFormData({ name: '', company: '', email: '', phone: '', linkedin: '', notes: '', reputation: 0 })
+    setStats(EMPTY_STATS)
     setEditingId(null)
+    createMutation.reset()
+    updateMutation.reset()
   }
 
   const saving = createMutation.isPending || updateMutation.isPending
+  const saveError = createMutation.error || updateMutation.error
 
   return (
     <>
@@ -124,6 +152,11 @@ export function RecruiterAdmin() {
           <div className="blog-glass admin-panel">
             <h2 className="admin-panel-title">{editingId ? 'Edit Recruiter' : 'Add New Recruiter'}</h2>
             <form onSubmit={handleSubmit} className="admin-form">
+              {saveError && (
+                <div className="blog-error">
+                  {saveError instanceof Error ? saveError.message : 'Failed to save recruiter'}
+                </div>
+              )}
               <div className="admin-form-row">
                 <div>
                   <label htmlFor="recruiter-name" className="admin-label">
@@ -206,6 +239,42 @@ export function RecruiterAdmin() {
                   onChange={(e) => setFormData({ ...formData, reputation: parseInt(e.target.value) || 0 })}
                 />
                 <p className="admin-hint">Positive or negative number</p>
+              </div>
+
+              <div className="admin-form-row">
+                <div>
+                  <label htmlFor="recruiter-placements" className="admin-label">
+                    Placements
+                  </label>
+                  <input
+                    id="recruiter-placements"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    step={1}
+                    className="admin-input"
+                    value={stats.total_placements}
+                    onChange={(e) => setStats({ ...stats, total_placements: e.target.value })}
+                  />
+                  <p className="admin-hint">How many times they placed you</p>
+                </div>
+                <div>
+                  <label htmlFor="recruiter-rating" className="admin-label">
+                    Rating
+                  </label>
+                  <input
+                    id="recruiter-rating"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    className="admin-input"
+                    value={stats.average_rating}
+                    onChange={(e) => setStats({ ...stats, average_rating: e.target.value })}
+                  />
+                  <p className="admin-hint">0 to 5 stars</p>
+                </div>
               </div>
 
               <div>

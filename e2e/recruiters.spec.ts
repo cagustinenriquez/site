@@ -125,7 +125,8 @@ class FakeApi {
     }
 
     if (path === '/recruiters' && method === 'POST') {
-      const recruiter = makeRecruiter(this.nextId++, body);
+      // Like the real API: placements and rating are ignored on create
+      const recruiter = makeRecruiter(this.nextId++, { ...body, total_placements: 0, average_rating: 0 });
       this.recruiters.push(recruiter);
       return json(200, recruiter);
     }
@@ -277,6 +278,40 @@ test.describe('Recruiters', () => {
 
       await expect(page.locator('tr', { hasText: 'Bob Jones' })).toContainText('Globex Corp');
       expect(api.recruiters.find((r) => r.id === '2')?.company).toBe('Globex Corp');
+    });
+
+    test('adds a recruiter with placements and a rating', async ({ page }) => {
+      const api = await useFakeApi(page);
+      await visitLoggedIn(page, '/admin/recruiters');
+
+      await page.locator('button:has-text("Add Recruiter")').click();
+      await formField(page, 'Name').fill('Eve Park');
+      await formField(page, 'Company').fill('Hooli');
+      await formField(page, 'Placements').fill('3');
+      await formField(page, 'Rating').fill('4.5');
+      await page.locator('button[type="submit"]:has-text("Create")').click();
+
+      await expect(page.locator('tr', { hasText: 'Eve Park' })).toContainText('4.5');
+      const eve = api.recruiters.find((r) => r.name === 'Eve Park');
+      expect(eve?.total_placements).toBe(3);
+      expect(eve?.average_rating).toBe(4.5);
+    });
+
+    test('edits placements and rating', async ({ page }) => {
+      const api = await useFakeApi(page);
+      await visitLoggedIn(page, '/admin/recruiters');
+
+      await page.locator('tr', { hasText: 'Alice Smith' }).locator('button').first().click();
+      await expect(formField(page, 'Placements')).toHaveValue('2');
+      await expect(formField(page, 'Rating')).toHaveValue('4.5');
+      await formField(page, 'Placements').fill('4');
+      await formField(page, 'Rating').fill('3.8');
+      await page.locator('button[type="submit"]:has-text("Update")').click();
+
+      await expect(page.locator('tr', { hasText: 'Alice Smith' })).toContainText('3.8');
+      const alice = api.recruiters.find((r) => r.id === '1');
+      expect(alice?.total_placements).toBe(4);
+      expect(alice?.average_rating).toBe(3.8);
     });
 
     test('deletes a recruiter', async ({ page }) => {
