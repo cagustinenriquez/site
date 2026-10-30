@@ -9,7 +9,9 @@ import 'highlight.js/styles/atom-one-dark.css'
 import mermaid from 'mermaid'
 import { api } from '@/lib/api'
 import { calculateReadingTime } from '@/lib/utils'
+import { CyberCity } from '@/components/CyberCity'
 import { Edit2, Trash2 } from 'lucide-react'
+import './blog.css'
 
 mermaid.initialize({ startOnLoad: true, theme: 'dark' })
 
@@ -52,18 +54,7 @@ function CodeBlock({ inline, className, children }: CodeBlockProps) {
   // Inline code (single backticks)
   if (inline || !className) {
     return (
-      <code style={{
-        background: 'rgba(14, 165, 233, 0.15)',
-        padding: '0.2rem 0.4rem',
-        borderRadius: '4px',
-        color: '#0ea5e9',
-        fontFamily: 'monospace',
-        fontSize: '0.9em',
-        display: 'inline',
-        whiteSpace: 'nowrap',
-      }}>
-        {children}
-      </code>
+      <code className="blog-inline-code">{children}</code>
     )
   }
 
@@ -84,27 +75,8 @@ function CodeBlock({ inline, className, children }: CodeBlockProps) {
   }
 
   return (
-    <div style={{ position: 'relative', margin: '1rem 0', borderRadius: '8px', overflow: 'hidden', background: '#282c34' }}>
-      <button
-        onClick={handleCopy}
-        style={{
-          position: 'absolute',
-          top: '0.75rem',
-          right: '0.75rem',
-          padding: '0.5rem 0.75rem',
-          background: copied ? 'rgba(34, 197, 94, 0.3)' : 'rgba(148, 163, 184, 0.2)',
-          border: '1px solid ' + (copied ? 'rgba(34, 197, 94, 0.5)' : 'rgba(148, 163, 184, 0.3)'),
-          borderRadius: '4px',
-          color: copied ? '#22c55e' : '#cbd5e1',
-          fontSize: '0.75rem',
-          fontWeight: '500',
-          cursor: 'pointer',
-          transition: 'all 200ms',
-          zIndex: 10,
-        }}
-        onMouseEnter={(e) => !copied && (e.currentTarget.style.background = 'rgba(148, 163, 184, 0.3)')}
-        onMouseLeave={(e) => !copied && (e.currentTarget.style.background = 'rgba(148, 163, 184, 0.2)')}
-      >
+    <div className="blog-codeblock">
+      <button className={`blog-copy${copied ? ' is-copied' : ''}`} onClick={handleCopy}>
         {copied ? '✓ Copied' : 'Copy'}
       </button>
       <pre style={{ margin: '0', borderRadius: '0', overflow: 'auto', padding: '1rem', background: 'none', lineHeight: '1.6', fontSize: '0.9rem' }}>
@@ -147,27 +119,29 @@ export function BlogPost() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
-        <div style={{ color: '#94a3b8' }}>Loading...</div>
-      </div>
+      <>
+        <CyberCity calm />
+        <main className="blog-shell">
+          <div className="blog-loading">
+            Loading<span className="m0tz-dots" aria-hidden="true" />
+          </div>
+        </main>
+      </>
     )
   }
 
   if (isError || !post) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
-        <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '1.5rem', background: 'rgba(127, 29, 29, 0.3)', border: '1px solid #7c2d12', borderRadius: '8px', color: '#fca5a5' }}>
-          {error instanceof Error ? error.message : 'Post not found'}
-        </div>
-      </div>
+      <>
+        <CyberCity calm />
+        <main className="blog-shell">
+          <div className="blog-error">{error instanceof Error ? error.message : 'Post not found'}</div>
+          <Link to="/blog" className="blog-btn">
+            ← Back to Posts
+          </Link>
+        </main>
+      </>
     )
-  }
-
-  const glassStyle = {
-    background: 'rgba(30, 41, 59, 0.5)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(148, 163, 184, 0.1)',
-    borderRadius: '12px',
   }
 
   const formatDate = (dateString: string) => {
@@ -176,62 +150,37 @@ export function BlogPost() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
-        <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
-          {/* Article Card */}
-          <article style={{ ...glassStyle, padding: '2.5rem', marginBottom: '2rem' }}>
-            {/* Header */}
-            <div style={{ marginBottom: '2rem' }}>
-              <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#f1f5f9', marginBottom: '1rem', lineHeight: '1.2' }}>
-                {post.title}
-              </h1>
+    <>
+      <CyberCity calm />
+      <main className="blog-shell">
+        <article className="blog-article blog-glass">
+          <header className="blog-post-header">
+            <Link to="/blog" className="section-kicker blog-back">
+              The spellbook
+            </Link>
+            <h1 className="blog-post-title">{post.title}</h1>
 
-              {/* Metadata */}
-              <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                {(post.date || post.created_at) && (
-                  <span>📅 {formatDate(post.date || post.created_at || '')}</span>
-                )}
-                <span>⏱️ {calculateReadingTime(post.content)} min read</span>
-                {post.updated_at && (post.date || post.created_at) !== post.updated_at && (
-                  <span>✏️ Updated {formatDate(post.updated_at)}</span>
-                )}
-              </div>
-
-              {/* Excerpt */}
-              {post.excerpt && (
-                <p style={{ fontSize: '1.125rem', color: '#cbd5e1', marginBottom: '1rem', fontStyle: 'italic' }}>
-                  {post.excerpt}
-                </p>
-              )}
-
-              {/* Tags */}
-              {post.tags && post.tags.length > 0 && (
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        padding: '0.25rem 0.75rem',
-                        background: 'rgba(14, 165, 233, 0.15)',
-                        border: '1px solid rgba(14, 165, 233, 0.3)',
-                        borderRadius: '16px',
-                        color: '#0ea5e9',
-                        fontSize: '0.825rem',
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+            <div className="blog-post-meta">
+              {(post.date || post.created_at) && <span>{formatDate(post.date || post.created_at || '')}</span>}
+              <span>{calculateReadingTime(post.content)} min read</span>
+              {post.updated_at && (post.date || post.created_at) !== post.updated_at && <span>Updated {formatDate(post.updated_at)}</span>}
             </div>
 
-            {/* Divider */}
-            <div style={{ height: '1px', background: 'rgba(148, 163, 184, 0.1)', margin: '2rem 0' }} />
+            {post.excerpt && <p className="blog-post-excerpt">{post.excerpt}</p>}
 
-            {/* Content */}
-            <div style={{ color: '#cbd5e1', lineHeight: '1.8', marginBottom: '2rem' }}>
-              <ReactMarkdown
+            {post.tags && post.tags.length > 0 && (
+              <div className="blog-tags">
+                {post.tags.map((tag) => (
+                  <span key={tag} className="blog-tag">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </header>
+
+          <div className="blog-content">
+            <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
                   code: CodeBlock,
@@ -244,7 +193,7 @@ export function BlogPost() {
                         height: 'auto',
                         margin: '1.5rem 0',
                         borderRadius: '8px',
-                        border: '1px solid rgba(148, 163, 184, 0.2)',
+                        border: '1px solid var(--border)',
                       }}
                     />
                   ),
@@ -253,7 +202,7 @@ export function BlogPost() {
                       <table style={{
                         width: '100%',
                         borderCollapse: 'collapse',
-                        border: '1px solid rgba(148, 163, 184, 0.3)',
+                        border: '1px solid var(--border)',
                         borderRadius: '8px',
                         overflow: 'hidden',
                       }}>
@@ -262,7 +211,7 @@ export function BlogPost() {
                     </div>
                   ),
                   thead: ({ children }) => (
-                    <thead style={{ background: 'rgba(14, 165, 233, 0.15)' }}>
+                    <thead style={{ background: 'rgba(45, 226, 230, 0.08)' }}>
                       {children}
                     </thead>
                   ),
@@ -273,7 +222,7 @@ export function BlogPost() {
                   ),
                   tr: ({ children }) => (
                     <tr style={{
-                      borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
+                      borderBottom: '1px solid var(--border)',
                     }}>
                       {children}
                     </tr>
@@ -283,8 +232,8 @@ export function BlogPost() {
                       padding: '0.75rem 1rem',
                       textAlign: 'left',
                       fontWeight: '600',
-                      color: '#0ea5e9',
-                      borderRight: '1px solid rgba(148, 163, 184, 0.2)',
+                      color: 'var(--accent)',
+                      borderRight: '1px solid var(--border)',
                     }}>
                       {children}
                     </th>
@@ -292,8 +241,8 @@ export function BlogPost() {
                   td: ({ children }) => (
                     <td style={{
                       padding: '0.75rem 1rem',
-                      color: '#cbd5e1',
-                      borderRight: '1px solid rgba(148, 163, 184, 0.1)',
+                      color: 'var(--ink-secondary)',
+                      borderRight: '1px solid var(--border)',
                     }}>
                       {children}
                     </td>
@@ -302,125 +251,30 @@ export function BlogPost() {
               >
                 {post.content}
               </ReactMarkdown>
-              <style>{`
-                div[style*="color: #cbd5e1"] svg {
-                  width: 100%;
-                  height: auto;
-                  margin: 1.5rem 0;
-                }
-                div[style*="color: #cbd5e1"] pre {
-                  width: 100% !important;
-                  box-sizing: border-box;
-                }
-              `}</style>
-            </div>
-
-            {/* End of Article Divider */}
-            <div style={{ margin: '3rem 0 0', paddingTop: '2rem', borderTop: '2px solid rgba(148, 163, 184, 0.15)' }} />
-          </article>
-
-          {/* Error Message */}
-          {deleteError && (
-            <div
-              style={{
-                marginBottom: '1.5rem',
-                padding: '1rem',
-                background: 'rgba(127, 29, 29, 0.3)',
-                border: '1px solid #7c2d12',
-                borderRadius: '8px',
-                color: '#fca5a5',
-                fontSize: '0.875rem',
-              }}
-            >
-              {deleteError}
-            </div>
-          )}
-
-          {/* Admin Actions */}
-          <div style={{ ...glassStyle, padding: '1.5rem', display: 'flex', gap: '1rem' }}>
-            <Link to="/blog" style={{ textDecoration: 'none', flex: 1 }}>
-              <button
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  background: 'rgba(148, 163, 184, 0.15)',
-                  border: '1px solid rgba(148, 163, 184, 0.3)',
-                  borderRadius: '8px',
-                  color: '#cbd5e1',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 200ms',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(148, 163, 184, 0.25)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(148, 163, 184, 0.15)'
-                }}
-              >
-                ← Back to Posts
-              </button>
-            </Link>
-            {api.isAuthenticated() && (
-              <>
-                <Link to={`/blog/${post.slug}/edit`} style={{ textDecoration: 'none', flex: 1 }}>
-                  <button
-                    style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      padding: '0.75rem',
-                      background: 'rgba(14, 165, 233, 0.15)',
-                      border: '1px solid rgba(14, 165, 233, 0.3)',
-                      borderRadius: '8px',
-                      color: '#0ea5e9',
-                      fontWeight: '500',
-                      cursor: 'pointer',
-                      transition: 'all 200ms',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(14, 165, 233, 0.25)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(14, 165, 233, 0.15)'
-                    }}
-                  >
-                    <Edit2 size={18} />
-                    Edit
-                  </button>
-                </Link>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    padding: '0.75rem',
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: '8px',
-                    color: '#ef4444',
-                    fontWeight: '500',
-                    cursor: deleting ? 'not-allowed' : 'pointer',
-                    opacity: deleting ? 0.6 : 1,
-                    transition: 'all 200ms',
-                  }}
-                  onMouseEnter={(e) => !deleting && (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)')}
-                >
-                  <Trash2 size={18} />
-                  {deleting ? 'Deleting...' : 'Delete'}
-                </button>
-              </>
-            )}
           </div>
+        </article>
+
+        {deleteError && <div className="blog-error">{deleteError}</div>}
+
+        <div className="blog-actions blog-glass">
+          <Link to="/blog" className="blog-btn">
+            ← Back to Posts
+          </Link>
+          {api.isAuthenticated() && (
+            <>
+              <Link to={`/blog/${post.slug}/edit`} className="blog-btn blog-btn-accent">
+                <Edit2 size={18} />
+                Edit
+              </Link>
+              <button className="blog-btn blog-btn-danger" onClick={handleDelete} disabled={deleting}>
+                <Trash2 size={18} />
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </>
+          )}
         </div>
-      </div>
+      </main>
+    </>
   )
 }
 

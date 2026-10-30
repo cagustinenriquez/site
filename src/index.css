@@ -42,9 +42,19 @@ code {
 }
 
 .navbar {
-  background: rgba(26, 26, 26, 0.8) !important;
-  backdrop-filter: blur(10px);
+  background: transparent;
   border-bottom: 1px solid #404040;
+}
+
+/* The navbar's frosted background sits on a layer behind it */
+.navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .navbar-brand {

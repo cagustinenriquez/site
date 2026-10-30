@@ -15,8 +15,8 @@ test('can enter a single blog post', async ({ page }) => {
   await page.goto('/blog');
   await page.waitForLoadState('networkidle');
 
-  // Click on the first blog post title (h3 inside a link)
-  await page.locator('h3').first().click();
+  // Click on the first blog post title
+  await page.locator('.blog-card-title').first().click();
   await page.waitForLoadState('networkidle');
 
   // Verify we're on a blog post page
