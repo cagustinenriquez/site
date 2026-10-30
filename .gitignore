@@ -29,3 +29,9 @@ test-results
 playwright-report
 blob-report
 playwright/.auth
+
+# Local Cloudflare secrets (ANTHROPIC_API_KEY for the chat)
+.dev.vars
+
+# Wrangler local state
+.wrangler/

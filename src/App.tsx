@@ -19,79 +19,20 @@ import RecruiterList from './pages/RecruiterList'
 import RecruiterProfile from './pages/RecruiterProfile'
 import RecruiterAdmin from './pages/RecruiterAdmin'
 import { Navbar } from './components/Navbar'
+import { CyberCity } from './components/CyberCity'
+import { M0tz } from './components/M0tz'
+import { useReveal, stagger } from './lib/useReveal'
+import { schools, faq } from './content/profile'
+import { ChatWidget } from './components/ChatWidget'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { api, SESSION_EXPIRED_MESSAGE } from './lib/api'
 
-const schools = [
-  {
-    icon: '🐍',
-    title: 'Python sorcery',
-    summary: 'Django, Flask, FastAPI, async, multiprocessing, data processing, Pandas.',
-  },
-  {
-    icon: '☁️',
-    title: 'Cloud alchemy',
-    summary: 'AWS, S3, EC2, RDS, IAM, queues and event-driven systems.',
-  },
-  {
-    icon: '🧱',
-    title: 'Container necromancy',
-    summary: 'Docker, Kubernetes, Terraform, deployments that somehow work despite nobody completely understanding why.',
-  },
-  {
-    icon: '📨',
-    title: 'Message-passing mysticism',
-    summary: 'Kafka, RabbitMQ, SQS, WebSockets, real-time processing.',
-  },
-  {
-    icon: '🧠',
-    title: 'AI summoning',
-    summary: 'Claude, Codex, Copilot, you name it.',
-  },
-  {
-    icon: '🏦',
-    title: 'Financial dark arts',
-    summary: 'Loan risk, fraud/AML processes, direct debits, millions of financial records.',
-  },
-  {
-    icon: '🎛️',
-    title: 'DAW wizardry',
-    summary: 'REAPER + Lua + FastAPI + an AI agent that actually manipulates tracks.',
-  },
-  {
-    icon: '🔌',
-    title: '"Let\'s just connect it" engineering',
-    summary: 'Bluetooth/Wi-Fi detection, OCR, external systems, APIs, legacy enterprise software.',
-  },
-  {
-    icon: '🩹',
-    title: 'Production archaeology',
-    summary: 'Taking an existing system nobody wants to touch and figuring out why the hell it works.',
-  },
-] as const
-
-const faq = [
-  {
-    question: 'Why the technovoodoo branding?',
-    answer:
-      'Because "Software Engineer" is boring, and most of what happens in production feels like magic anyway. Might as well lean into it.',
-  },
-  {
-    question: 'So you actually know what you\'re doing, or...?',
-    answer:
-      'Mostly. 10+ years of production systems, 10 million+ records, millions in financial transactions. The API jokes are real, the wins are real, the production archaeology is very real.',
-  },
-  {
-    question: 'Why Python, AWS, Docker, and "questionable persistence"?',
-    answer:
-      'Python is readable and gets stuff done. AWS scales without breaking. Docker makes deployments less terrifying. And "questionable persistence" is a fancy way of saying I\'ve built systems that work despite architectural decisions that made architects cry.',
-  },
-] as const
-
 function HomePage({ onContactClick }: { onContactClick: () => void }) {
+  useReveal()
   return (
     <>
-      <main className="page-shell">
+      <CyberCity />
+      <main className="page-shell home">
         <section className="hero">
           <div className="topbar">
             <p className="eyebrow">Buenos Aires, Argentina</p>
@@ -101,7 +42,7 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
           </div>
 
           <div className="hero-grid">
-            <div className="hero-copy">
+            <div className="hero-copy reveal">
               <p className="section-kicker">🧙 Personal Technovoodoo</p>
               <h1>Give me a messy real-world problem and enough Python, and I'll eventually make it an API.</h1>
               <p className="lede">
@@ -119,17 +60,22 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
               </div>
             </div>
           </div>
+
+          <a className="scroll-cue" href="#work" aria-label="Scroll down">
+            <span>scroll</span>
+            <span className="scroll-cue-line" aria-hidden="true" />
+          </a>
         </section>
 
-        <section className="band" id="work">
+        <section className="band reveal" id="work">
           <div className="section-heading">
             <p className="section-kicker">Schools of Sorcery</p>
             <h2>The various arcane arts and dark magic in the arsenal.</h2>
           </div>
 
           <div className="project-grid">
-            {schools.map((school) => (
-              <article className="project-card" key={school.title}>
+            {schools.map((school, i) => (
+              <article className="project-card reveal" style={stagger(i % 3)} key={school.title}>
                 <p className="project-meta" style={{ fontSize: '1.5rem' }}>{school.icon}</p>
                 <h3>{school.title}</h3>
                 <p>{school.summary}</p>
@@ -138,7 +84,7 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
           </div>
         </section>
 
-        <section className="band process-band">
+        <section className="band process-band reveal">
           <div className="section-heading">
             <p className="section-kicker">The Core Spell</p>
             <h2>"Give me a messy real-world problem and enough Python, AWS, Docker and questionable persistence, and I'll eventually make it an API."</h2>
@@ -151,7 +97,7 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
           </ol>
         </section>
 
-        <section className="band faq-band" id="faq">
+        <section className="band faq-band reveal" id="faq">
           <div className="section-heading">
             <p className="section-kicker">Engineering philosophy</p>
             <h2>Python enthusiast, pragmatic backend developer, and strong believer in simple systems.</h2>
@@ -248,6 +194,7 @@ function AppRoutes({ onContactClick }: { onContactClick: () => void }) {
 
 function App() {
   const [isContactOpen, setIsContactOpen] = useState(false)
+  const [m0tzTyping, setM0tzTyping] = useState(false)
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -255,13 +202,44 @@ function App() {
         <SessionExpiredRedirect />
         <Navbar onContactClick={() => setIsContactOpen(true)} />
         <AppRoutes onContactClick={() => setIsContactOpen(true)} />
+        <ChatWidget onContactClick={() => setIsContactOpen(true)} />
 
         {/* Global Contact Dialog */}
         <Dialog open={isContactOpen} onClose={setIsContactOpen} className="contact-dialog">
           <DialogBackdrop className="dialog-backdrop" />
           <div className="dialog-wrap">
             <DialogPanel className="dialog-panel">
-              <p className="section-kicker">🧙 Summon the Wizard</p>
+              {/* m0tz from Motz World: hover or tap and he starts typing */}
+              <div className="m0tz-card">
+                <button
+                  type="button"
+                  className="m0tz-stage"
+                  aria-label="m0tz, the pixel-art character from Motz World"
+                  aria-pressed={m0tzTyping}
+                  onMouseEnter={() => setM0tzTyping(true)}
+                  onMouseLeave={() => setM0tzTyping(false)}
+                  onClick={() => setM0tzTyping((h) => !h)}
+                >
+                  <M0tz size={112} frame={m0tzTyping ? 'typing' : 'idle'} className="m0tz-sprite" />
+                  <span className="m0tz-floor" aria-hidden="true" />
+                </button>
+                <div className="m0tz-bubble">
+                  <p className="m0tz-name">
+                    m0tz <span className="m0tz-status">online</span>
+                  </p>
+                  <p className="m0tz-line">
+                    {m0tzTyping ? 'typing' : 'Messy problem? Ping me. I\'ll make it an API.'}
+                    {m0tzTyping && <span className="m0tz-dots" aria-hidden="true" />}
+                  </p>
+                  <a className="m0tz-play" href="/motzworld/">
+                    Play Motz World →
+                  </a>
+                </div>
+              </div>
+
+              <p className="section-kicker kicker-with-icon">
+                <M0tz size={20} /> Summon the Wizard
+              </p>
               <h2>Agustin Enriquez — Technovoodoo Practitioner</h2>
               <p className="dialog-copy">
                 10+ years of Python sorcery, AWS cloud alchemy, and production archaeology.
