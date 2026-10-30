@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, type CreateRecruiterPayload, type UpdateRecruiterPayload } from '@/lib/api'
 import { Trash2, Edit2, Plus } from 'lucide-react'
+import { CyberCity } from '@/components/CyberCity'
+import './blog.css'
+import './admin.css'
 
 export function RecruiterAdmin() {
   const queryClient = useQueryClient()
@@ -93,258 +96,143 @@ export function RecruiterAdmin() {
     setEditingId(null)
   }
 
-  const glassStyle = {
-    background: 'rgba(30, 41, 59, 0.5)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(148, 163, 184, 0.1)',
-    borderRadius: '12px',
-  }
+  const saving = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
-      <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <>
+      <CyberCity calm />
+      <main className="blog-shell admin-shell">
+        <header className="admin-header">
           <div>
-            <h1 style={{ color: '#f1f5f9', fontSize: '2rem', fontWeight: '700', margin: '0 0 0.5rem 0' }}>
-              Recruit Admin
-            </h1>
-            <p style={{ color: '#cbd5e1', margin: 0, fontSize: '1rem' }}>
-              Manage recruiters and their placements
-            </p>
+            <p className="section-kicker">Admin</p>
+            <h1 className="admin-title">Recruit Admin</h1>
+            <p className="admin-subtitle">Manage recruiters and their placements</p>
           </div>
           <button
             onClick={() => {
               resetForm()
               setIsFormOpen(!isFormOpen)
             }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem 1.5rem',
-              background: 'rgba(14, 165, 233, 0.15)',
-              border: '1px solid rgba(14, 165, 233, 0.3)',
-              borderRadius: '8px',
-              color: '#0ea5e9',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '0.95rem',
-              transition: 'all 200ms',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(14, 165, 233, 0.25)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(14, 165, 233, 0.15)'
-            }}
+            className="blog-btn blog-btn-primary"
           >
             <Plus size={18} />
             Add Recruiter
           </button>
-        </div>
+        </header>
 
-        {/* Form Modal */}
         {isFormOpen && (
-          <div style={{ ...glassStyle, padding: '2rem', marginBottom: '2rem' }}>
-            <h2 style={{ color: '#f1f5f9', fontSize: '1.5rem', fontWeight: '600', margin: '0 0 1.5rem 0' }}>
-              {editingId ? 'Edit Recruiter' : 'Add New Recruiter'}
-            </h2>
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="blog-glass admin-panel">
+            <h2 className="admin-panel-title">{editingId ? 'Edit Recruiter' : 'Add New Recruiter'}</h2>
+            <form onSubmit={handleSubmit} className="admin-form">
+              <div className="admin-form-row">
                 <div>
-                  <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                  <label htmlFor="recruiter-name" className="admin-label">
                     Name
                   </label>
                   <input
+                    id="recruiter-name"
                     type="text"
                     required
+                    className="admin-input"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 1rem',
-                      background: 'rgba(15, 23, 42, 0.8)',
-                      border: '1px solid rgba(148, 163, 184, 0.2)',
-                      borderRadius: '8px',
-                      color: '#f1f5f9',
-                      fontSize: '0.95rem',
-                      boxSizing: 'border-box',
-                    }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                  <label htmlFor="recruiter-company" className="admin-label">
                     Company
                   </label>
                   <input
+                    id="recruiter-company"
                     type="text"
                     required
+                    className="admin-input"
                     value={formData.company}
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 1rem',
-                      background: 'rgba(15, 23, 42, 0.8)',
-                      border: '1px solid rgba(148, 163, 184, 0.2)',
-                      borderRadius: '8px',
-                      color: '#f1f5f9',
-                      fontSize: '0.95rem',
-                      boxSizing: 'border-box',
-                    }}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                <label htmlFor="recruiter-email" className="admin-label">
                   Email
                 </label>
                 <input
+                  id="recruiter-email"
                   type="email"
+                  className="admin-input"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    background: 'rgba(15, 23, 42, 0.8)',
-                    border: '1px solid rgba(148, 163, 184, 0.2)',
-                    borderRadius: '8px',
-                    color: '#f1f5f9',
-                    fontSize: '0.95rem',
-                    boxSizing: 'border-box',
-                  }}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="admin-form-row">
                 <div>
-                  <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                  <label htmlFor="recruiter-phone" className="admin-label">
                     Phone
                   </label>
                   <input
+                    id="recruiter-phone"
                     type="tel"
+                    className="admin-input"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 1rem',
-                      background: 'rgba(15, 23, 42, 0.8)',
-                      border: '1px solid rgba(148, 163, 184, 0.2)',
-                      borderRadius: '8px',
-                      color: '#f1f5f9',
-                      fontSize: '0.95rem',
-                      boxSizing: 'border-box',
-                    }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                  <label htmlFor="recruiter-linkedin" className="admin-label">
                     LinkedIn URL
                   </label>
                   <input
+                    id="recruiter-linkedin"
                     type="url"
+                    className="admin-input"
                     value={formData.linkedin}
                     onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
                     placeholder="https://linkedin.com/in/..."
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 1rem',
-                      background: 'rgba(15, 23, 42, 0.8)',
-                      border: '1px solid rgba(148, 163, 184, 0.2)',
-                      borderRadius: '8px',
-                      color: '#f1f5f9',
-                      fontSize: '0.95rem',
-                      boxSizing: 'border-box',
-                    }}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                <label htmlFor="recruiter-reputation" className="admin-label">
                   Reputation
                 </label>
                 <input
+                  id="recruiter-reputation"
                   type="number"
+                  className="admin-input"
                   value={formData.reputation}
                   onChange={(e) => setFormData({ ...formData, reputation: parseInt(e.target.value) || 0 })}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    background: 'rgba(15, 23, 42, 0.8)',
-                    border: '1px solid rgba(148, 163, 184, 0.2)',
-                    borderRadius: '8px',
-                    color: '#f1f5f9',
-                    fontSize: '0.95rem',
-                    boxSizing: 'border-box',
-                  }}
                 />
-                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0 0 0' }}>
-                  Positive or negative number
-                </p>
+                <p className="admin-hint">Positive or negative number</p>
               </div>
 
               <div>
-                <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                <label htmlFor="recruiter-notes" className="admin-label">
                   Notes
                 </label>
                 <textarea
+                  id="recruiter-notes"
+                  className="admin-input"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={4}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    background: 'rgba(15, 23, 42, 0.8)',
-                    border: '1px solid rgba(148, 163, 184, 0.2)',
-                    borderRadius: '8px',
-                    color: '#f1f5f9',
-                    fontSize: '0.95rem',
-                    boxSizing: 'border-box',
-                    resize: 'vertical',
-                    fontFamily: 'inherit',
-                  }}
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              <div className="admin-form-actions is-end">
                 <button
                   type="button"
+                  className="blog-btn"
                   onClick={() => {
                     resetForm()
                     setIsFormOpen(false)
                   }}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: 'transparent',
-                    border: '1px solid rgba(148, 163, 184, 0.2)',
-                    borderRadius: '8px',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    fontSize: '0.95rem',
-                    transition: 'all 200ms',
-                  }}
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: 'rgba(14, 165, 233, 0.15)',
-                    border: '1px solid rgba(14, 165, 233, 0.3)',
-                    borderRadius: '8px',
-                    color: '#0ea5e9',
-                    cursor: createMutation.isPending || updateMutation.isPending ? 'not-allowed' : 'pointer',
-                    fontWeight: '600',
-                    fontSize: '0.95rem',
-                    transition: 'all 200ms',
-                    opacity: createMutation.isPending || updateMutation.isPending ? 0.5 : 1,
-                  }}
-                >
+                <button type="submit" disabled={saving} className="blog-btn blog-btn-primary">
                   {editingId ? 'Update' : 'Create'}
                 </button>
               </div>
@@ -352,139 +240,65 @@ export function RecruiterAdmin() {
           </div>
         )}
 
-        {/* Error */}
         {isError && (
-          <div
-            style={{
-              marginBottom: '1.5rem',
-              padding: '1rem',
-              background: 'rgba(127, 29, 29, 0.3)',
-              border: '1px solid #7c2d12',
-              borderRadius: '8px',
-              color: '#fca5a5',
-              fontSize: '0.875rem',
-            }}
-          >
-            {error instanceof Error ? error.message : 'Failed to load recruiters'}
-          </div>
+          <div className="blog-error">{error instanceof Error ? error.message : 'Failed to load recruiters'}</div>
         )}
 
-        {/* Loading */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
-            Loading recruiters...
+          <div className="blog-loading">
+            Loading recruiters<span className="m0tz-dots" aria-hidden="true" />
           </div>
         ) : recruiters.length === 0 ? (
-          <div style={{ ...glassStyle, padding: '3rem', textAlign: 'center' }}>
-            <p style={{ color: '#94a3b8', marginBottom: '0.5rem' }}>No recruiters yet.</p>
-            <button
-              onClick={() => setIsFormOpen(true)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: 'rgba(14, 165, 233, 0.15)',
-                border: '1px solid rgba(14, 165, 233, 0.3)',
-                borderRadius: '8px',
-                color: '#0ea5e9',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '0.95rem',
-                marginTop: '1rem',
-              }}
-            >
+          <div className="blog-glass blog-empty">
+            <p>No recruiters yet.</p>
+            <button onClick={() => setIsFormOpen(true)} className="blog-btn blog-btn-primary">
               Create your first recruiter
             </button>
           </div>
         ) : (
           <>
-            {/* Table */}
-            <div style={{ ...glassStyle, overflow: 'hidden', marginBottom: '2rem' }}>
-              <div style={{ overflowX: 'auto' }}>
-                <table
-                  style={{
-                    width: '100%',
-                    borderCollapse: 'collapse',
-                    fontSize: '0.95rem',
-                  }}
-                >
+            <div className="blog-glass admin-panel admin-table-panel">
+              <div className="admin-table-scroll">
+                <table className="admin-table">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: '#cbd5e1', fontWeight: '600' }}>
-                        Name
-                      </th>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: '#cbd5e1', fontWeight: '600' }}>
-                        Company
-                      </th>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: '#cbd5e1', fontWeight: '600' }}>
-                        Email
-                      </th>
-                      <th style={{ padding: '1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: '600' }}>
-                        Reputation
-                      </th>
-                      <th style={{ padding: '1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: '600' }}>
-                        Placements
-                      </th>
-                      <th style={{ padding: '1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: '600' }}>
-                        Rating
-                      </th>
-                      <th style={{ padding: '1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: '600' }}>
-                        Actions
-                      </th>
+                    <tr>
+                      <th>Name</th>
+                      <th>Company</th>
+                      <th>Email</th>
+                      <th className="is-center">Reputation</th>
+                      <th className="is-center">Placements</th>
+                      <th className="is-center">Rating</th>
+                      <th className="is-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {recruiters.map((recruiter) => (
-                      <tr key={recruiter.id} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.05)' }}>
-                        <td style={{ padding: '1rem', color: '#f1f5f9' }}>
-                          {recruiter.name}
+                      <tr key={recruiter.id}>
+                        <td className="is-name">{recruiter.name}</td>
+                        <td>{recruiter.company}</td>
+                        <td className="is-small">{recruiter.email}</td>
+                        <td className={`is-center admin-num ${recruiter.reputation >= 0 ? 'is-good' : 'is-bad'}`}>
+                          {recruiter.reputation >= 0 ? '+' : ''}
+                          {recruiter.reputation}
                         </td>
-                        <td style={{ padding: '1rem', color: '#cbd5e1' }}>
-                          {recruiter.company}
-                        </td>
-                        <td style={{ padding: '1rem', color: '#cbd5e1', fontSize: '0.875rem' }}>
-                          {recruiter.email}
-                        </td>
-                        <td style={{ padding: '1rem', textAlign: 'center', color: recruiter.reputation >= 0 ? '#10b981' : '#ef4444', fontWeight: '600' }}>
-                          {recruiter.reputation >= 0 ? '+' : ''}{recruiter.reputation}
-                        </td>
-                        <td style={{ padding: '1rem', textAlign: 'center', color: '#f1f5f9' }}>
-                          {recruiter.total_placements}
-                        </td>
-                        <td style={{ padding: '1rem', textAlign: 'center', color: '#fbbf24' }}>
-                          {recruiter.average_rating.toFixed(1)} ⭐
-                        </td>
-                        <td style={{ padding: '1rem', textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                        <td className="is-center admin-num">{recruiter.total_placements}</td>
+                        <td className="is-center admin-num is-star">{recruiter.average_rating.toFixed(1)} ⭐</td>
+                        <td className="is-center">
+                          <div className="admin-actions">
                             <button
                               onClick={() => handleEditRecruiter(recruiter.id)}
-                              style={{
-                                padding: '0.5rem',
-                                background: 'rgba(14, 165, 233, 0.15)',
-                                border: '1px solid rgba(14, 165, 233, 0.3)',
-                                borderRadius: '6px',
-                                color: '#0ea5e9',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
+                              className="blog-btn blog-btn-accent admin-icon-btn"
+                              aria-label={`Edit ${recruiter.name}`}
+                              title="Edit"
                             >
                               <Edit2 size={16} />
                             </button>
                             <button
                               onClick={() => deleteMutation.mutate(recruiter.id)}
                               disabled={deleteMutation.isPending}
-                              style={{
-                                padding: '0.5rem',
-                                background: 'rgba(239, 68, 68, 0.15)',
-                                border: '1px solid rgba(239, 68, 68, 0.3)',
-                                borderRadius: '6px',
-                                color: '#ef4444',
-                                cursor: deleteMutation.isPending ? 'not-allowed' : 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                opacity: deleteMutation.isPending ? 0.5 : 1,
-                              }}
+                              className="blog-btn blog-btn-danger admin-icon-btn"
+                              aria-label={`Delete ${recruiter.name}`}
+                              title="Delete"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -497,55 +311,27 @@ export function RecruiterAdmin() {
               </div>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    background: page === 1 ? 'rgba(148, 163, 184, 0.1)' : 'rgba(14, 165, 233, 0.15)',
-                    border: '1px solid ' + (page === 1 ? 'rgba(148, 163, 184, 0.1)' : 'rgba(14, 165, 233, 0.3)'),
-                    borderRadius: '8px',
-                    color: page === 1 ? '#64748b' : '#0ea5e9',
-                    cursor: page === 1 ? 'not-allowed' : 'pointer',
-                    fontWeight: '500',
-                    fontSize: '0.875rem',
-                    opacity: page === 1 ? 0.5 : 1,
-                  }}
-                >
+              <nav className="blog-pager" aria-label="Pages">
+                <button className="blog-btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
                   ← Previous
                 </button>
-
-                <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-                  Page <span style={{ fontWeight: '600', color: '#cbd5e1' }}>{page}</span> of{' '}
-                  <span style={{ fontWeight: '600', color: '#cbd5e1' }}>{totalPages}</span>
+                <span className="blog-muted">
+                  Page <strong>{page}</strong> of <strong>{totalPages}</strong>
                 </span>
-
                 <button
+                  className="blog-btn"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    background: page === totalPages ? 'rgba(148, 163, 184, 0.1)' : 'rgba(14, 165, 233, 0.15)',
-                    border: '1px solid ' + (page === totalPages ? 'rgba(148, 163, 184, 0.1)' : 'rgba(14, 165, 233, 0.3)'),
-                    borderRadius: '8px',
-                    color: page === totalPages ? '#64748b' : '#0ea5e9',
-                    cursor: page === totalPages ? 'not-allowed' : 'pointer',
-                    fontWeight: '500',
-                    fontSize: '0.875rem',
-                    opacity: page === totalPages ? 0.5 : 1,
-                  }}
                 >
                   Next →
                 </button>
-              </div>
+              </nav>
             )}
           </>
         )}
-      </div>
-    </div>
+      </main>
+    </>
   )
 }
 

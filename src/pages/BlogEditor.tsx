@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { api, type Post } from '@/lib/api'
-import { ArrowLeft } from 'lucide-react'
+import { CyberCity } from '@/components/CyberCity'
+import './blog.css'
+import './admin.css'
 
 export function BlogEditor() {
   const { slug } = useParams<{ slug?: string }>()
@@ -80,214 +82,103 @@ export function BlogEditor() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)' }}>
-        <div style={{ color: '#94a3b8' }}>Loading...</div>
-      </div>
+      <>
+        <CyberCity calm />
+        <main className="blog-shell admin-shell is-narrow">
+          <div className="blog-loading">
+            Loading<span className="m0tz-dots" aria-hidden="true" />
+          </div>
+        </main>
+      </>
     )
   }
 
-  const glassStyle = {
-    background: 'rgba(30, 41, 59, 0.5)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(148, 163, 184, 0.1)',
-    borderRadius: '12px',
-  }
-
-  const inputStyle = {
-    width: '100%',
-    padding: '0.75rem',
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
-    border: '1px solid rgba(148, 163, 184, 0.2)',
-    borderRadius: '8px',
-    color: '#f1f5f9',
-    fontSize: '1rem',
-    fontFamily: 'inherit',
-    transition: 'border-color 200ms',
-    boxSizing: 'border-box' as const,
-  }
-
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1a1f2e 100%)', padding: '3rem 1rem', paddingTop: '6rem' }}>
-        <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
-          {/* Back Button */}
-          <Link to="/admin" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '2rem' }}>
-            <button
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                background: 'rgba(148, 163, 184, 0.1)',
-                border: '1px solid rgba(148, 163, 184, 0.2)',
-                borderRadius: '8px',
-                color: '#94a3b8',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                transition: 'all 200ms',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(148, 163, 184, 0.2)'
-                e.currentTarget.style.color = '#cbd5e1'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(148, 163, 184, 0.1)'
-                e.currentTarget.style.color = '#94a3b8'
-              }}
-            >
-              <ArrowLeft size={16} />
-              Back to Admin
-            </button>
+    <>
+      <CyberCity calm />
+      <main className="blog-shell admin-shell is-narrow">
+        <header>
+          <Link to="/admin" className="section-kicker blog-back">
+            Back to Admin
           </Link>
+          <h1 className="admin-title">{slug ? 'Edit Post' : 'New Post'}</h1>
+          <p className="admin-subtitle">Write your spell and share it with the world</p>
+        </header>
 
-          {/* Header */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#f1f5f9', marginBottom: '0.5rem' }}>
-              {slug ? '✏️ Edit Post' : '📝 New Post'}
-            </h1>
-            <p style={{ color: '#94a3b8' }}>Write your spell and share it with the world</p>
-          </div>
+        <div className="blog-glass admin-panel">
+          <form onSubmit={handleSubmit} className="admin-form">
+            {error && <div className="blog-error">{error}</div>}
 
-          {/* Form Card */}
-          <div style={{ ...glassStyle, padding: '2rem' }}>
-            {error && (
-              <div
-                style={{
-                  marginBottom: '1.5rem',
-                  padding: '1rem',
-                  background: 'rgba(127, 29, 29, 0.3)',
-                  border: '1px solid #7c2d12',
-                  borderRadius: '8px',
-                  color: '#fca5a5',
-                  fontSize: '0.875rem',
-                }}
-              >
-                {error}
-              </div>
-            )}
+            <div>
+              <label htmlFor="post-title" className="admin-label">
+                Title
+              </label>
+              <input
+                id="post-title"
+                type="text"
+                className="admin-input"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Give your spell a name"
+                required
+              />
+            </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
-              {/* Title */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '0.5rem' }}>
-                  Title
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Give your spell a name"
-                  required
-                  style={inputStyle}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.5)')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.2)')}
-                />
-              </div>
+            <div>
+              <label htmlFor="post-excerpt" className="admin-label">
+                Excerpt (optional)
+              </label>
+              <input
+                id="post-excerpt"
+                type="text"
+                className="admin-input"
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                placeholder="Brief preview of your post"
+              />
+            </div>
 
-              {/* Excerpt */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '0.5rem' }}>
-                  Excerpt (optional)
-                </label>
-                <input
-                  type="text"
-                  value={excerpt}
-                  onChange={(e) => setExcerpt(e.target.value)}
-                  placeholder="Brief preview of your post"
-                  style={inputStyle}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.5)')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.2)')}
-                />
-              </div>
+            <div>
+              <label htmlFor="post-content" className="admin-label">
+                Content (Markdown supported)
+              </label>
+              <textarea
+                id="post-content"
+                className="admin-input is-code"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write your post content here... Use markdown for formatting and ![alt](url) for images"
+                rows={16}
+                required
+              />
+            </div>
 
-              {/* Content */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '0.5rem' }}>
-                  Content (Markdown supported)
-                </label>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Write your post content here... Use markdown for formatting and ![alt](url) for images"
-                  rows={16}
-                  required
-                  style={{
-                    ...inputStyle,
-                    fontFamily: 'monospace',
-                    fontSize: '0.95rem',
-                    lineHeight: '1.6',
-                    resize: 'vertical',
-                  }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.5)')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.2)')}
-                />
-              </div>
+            <div>
+              <label htmlFor="post-tags" className="admin-label">
+                Tags (comma-separated, optional)
+              </label>
+              <input
+                id="post-tags"
+                type="text"
+                className="admin-input"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="python, fastapi, backend"
+              />
+            </div>
 
-              {/* Tags */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '0.5rem' }}>
-                  Tags (comma-separated, optional)
-                </label>
-                <input
-                  type="text"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="python, fastapi, backend"
-                  style={inputStyle}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.5)')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.2)')}
-                />
-              </div>
-
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem' }}>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: '#0ea5e9',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: '500',
-                    cursor: saving ? 'not-allowed' : 'pointer',
-                    opacity: saving ? 0.7 : 1,
-                    transition: 'background 200ms',
-                  }}
-                  onMouseEnter={(e) => !saving && (e.currentTarget.style.background = '#0284c7')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = '#0ea5e9')}
-                >
-                  {saving ? 'Casting spell...' : 'Cast Spell'}
-                </button>
-
-                <Link to="/admin" style={{ textDecoration: 'none' }}>
-                  <button
-                    type="button"
-                    style={{
-                      padding: '0.75rem 1.5rem',
-                      background: 'rgba(148, 163, 184, 0.1)',
-                      color: '#cbd5e1',
-                      border: '1px solid rgba(148, 163, 184, 0.2)',
-                      borderRadius: '8px',
-                      fontWeight: '500',
-                      cursor: 'pointer',
-                      transition: 'all 200ms',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(148, 163, 184, 0.2)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(148, 163, 184, 0.1)'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </Link>
-              </div>
-            </form>
-          </div>
+            <div className="admin-form-actions">
+              <button type="submit" disabled={saving} className="blog-btn blog-btn-primary">
+                {saving ? 'Casting spell...' : 'Cast Spell'}
+              </button>
+              <Link to="/admin" className="blog-btn">
+                Cancel
+              </Link>
+            </div>
+          </form>
         </div>
-      </div>
+      </main>
+    </>
   )
 }
 
