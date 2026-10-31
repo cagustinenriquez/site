@@ -123,11 +123,6 @@ export const projects: readonly Project[] = [
     snapStore: 'oknetwork',
   },
   {
-    name: 'Simple Staircase Designer',
-    summary: 'A small tool for designing staircases.',
-    url: 'https://github.com/cagustinenriquez/simple-staircase-designer',
-  },
-  {
     name: 'ScreenRec Lite',
     summary:
       'A minimal screen recorder for Linux that records system audio, not your mic. Pick which apps to capture sound from (Firefox, Zoom, Discord, Spotify and more) with per-app checkboxes.',
