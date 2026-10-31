@@ -32,7 +32,11 @@ function toInstaller(asset: ReleaseAsset): Installer | null {
   return null
 }
 
-export async function getInstallers(repo: string, snapStore?: string): Promise<Installer[]> {
+export function snapStoreInstaller(name: string): Installer {
+  return { platform: 'snap', label: 'Snap Store', href: `https://snapcraft.io/${name}` }
+}
+
+export async function getInstallers(repo: string): Promise<Installer[]> {
   const res = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
     headers: { Accept: 'application/vnd.github+json' },
   })
@@ -41,12 +45,5 @@ export async function getInstallers(repo: string, snapStore?: string): Promise<I
   if (!res.ok) throw new Error(`GitHub releases: ${res.status}`)
 
   const { assets = [] } = (await res.json()) as { assets?: ReleaseAsset[] }
-  const installers = assets.map(toInstaller).filter((i): i is Installer => i !== null)
-
-  // The Snap Store page beats a raw .snap file: it shows the install command and updates itself
-  if (snapStore) {
-    const store = { platform: 'snap' as const, label: 'Snap Store', href: `https://snapcraft.io/${snapStore}` }
-    return [store, ...installers.filter((i) => i.platform !== 'snap')]
-  }
-  return installers
+  return assets.map(toInstaller).filter((i): i is Installer => i !== null)
 }

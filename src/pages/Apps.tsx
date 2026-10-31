@@ -2,21 +2,27 @@ import { useQuery } from '@tanstack/react-query'
 import { Code, Download, Laptop, Monitor, Package } from 'lucide-react'
 import { CyberCity } from '@/components/CyberCity'
 import { projects, type Project } from '@/content/profile'
-import { getInstallers, type Platform } from '@/lib/releases'
+import { getInstallers, snapStoreInstaller, type Platform } from '@/lib/releases'
 import { useReveal, stagger } from '@/lib/useReveal'
 import './blog.css'
 
 const platformIcon: Record<Platform, typeof Laptop> = { mac: Laptop, snap: Package, windows: Monitor }
 
-// Download buttons: one per installer in the latest GitHub release, then the full list.
+// Download buttons: Snap Store, one per installer in the latest GitHub release, then the full list.
 // While loading, or if GitHub can't be reached, only the full list shows.
 function AppDownloads({ app }: { app: Project }) {
-  const { data: installers = [] } = useQuery({
-    queryKey: ['installers', app.releases, app.snapStore],
-    queryFn: () => getInstallers(app.releases!, app.snapStore),
+  const { data: fromRelease = [] } = useQuery({
+    queryKey: ['installers', app.releases],
+    queryFn: () => getInstallers(app.releases!),
     enabled: !!app.releases,
     staleTime: 1000 * 60 * 30,
   })
+
+  // The Snap Store page beats a raw .snap file: it shows the install command and updates itself.
+  // It doesn't need GitHub, so it shows right away, even for apps without releases.
+  const installers = app.snapStore
+    ? [snapStoreInstaller(app.snapStore), ...fromRelease.filter((i) => i.platform !== 'snap')]
+    : fromRelease
 
   return (
     <>
