@@ -105,7 +105,7 @@ export interface Project {
   // Public GitHub repo ("owner/name"): the Apps page reads its latest release and shows
   // install buttons for the installers it finds there
   releases?: string
-  snapStore?: string // Snap Store name: links to the store instead of the raw .snap file
+  snapStore?: string // Snap Store name: adds a Snap Store button (used instead of a raw .snap file)
 }
 
 // Side projects m0tz can talk about, also listed on the Apps page (newest first).
@@ -123,14 +123,23 @@ export const projects: readonly Project[] = [
     snapStore: 'oknetwork',
   },
   {
+    name: 'Simple Staircase Designer',
+    summary: 'A small tool for designing staircases.',
+    url: 'https://github.com/cagustinenriquez/simple-staircase-designer',
+  },
+  {
+    name: 'ScreenRec Lite',
+    summary:
+      'A minimal screen recorder for Linux that records system audio, not your mic. Pick which apps to capture sound from (Firefox, Zoom, Discord, Spotify and more) with per-app checkboxes.',
+    url: 'https://github.com/cagustinenriquez/minimal-screen-recorder',
+    icon: '/apps/screenrec.svg',
+    tags: ['Python', 'FFmpeg', 'Linux'],
+    snapStore: 'screenrec-lite',
+  },
+  {
     name: 'django-register-tags',
     summary: 'A VS Code extension that makes registering Django models in the admin quick and easy.',
     url: 'https://github.com/agustinenriquez/django-register-tags',
     tags: ['VS Code', 'Django'],
-  },
-  {
-    name: 'Simple Staircase Designer',
-    summary: 'A small tool for designing staircases.',
-    url: 'https://github.com/cagustinenriquez/simple-staircase-designer',
   },
 ]
