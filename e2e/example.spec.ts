@@ -41,3 +41,9 @@ test('can toggle contact dialog', async ({ page }) => {
   // Verify the dialog is closed
   await expect(page.locator('text=Summon the Wizard')).not.toBeVisible();
 });
+
+test('apps page lists knet first', async ({ page }) => {
+  await page.goto('/apps');
+  await expect(page.getByRole('heading', { name: 'Apps', level: 1 })).toBeVisible();
+  await expect(page.locator('.blog-card-title').first()).toHaveText('OkNetwork (knet)');
+});

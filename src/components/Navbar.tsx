@@ -78,6 +78,7 @@ export function Navbar({ onContactClick, showBack }: NavbarProps) {
 
   const links = [
     { label: 'Blog', to: '/blog', router: true },
+    { label: 'Apps', to: '/apps', router: true },
     { label: 'Work', to: '/#work' },
     { label: 'Philosophy', to: '/#faq' },
     { label: 'Game', to: '/motzworld/' },

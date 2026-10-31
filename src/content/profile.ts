@@ -95,26 +95,42 @@ export const contact = {
 // Client work is private: m0tz can mention it but has no names or details to share.
 export const clientWork = 'He has built several API projects for private clients.'
 
-// Side projects m0tz can talk about. Keep each summary to what the project actually does.
-export const projects = [
+export interface Project {
+  name: string
+  summary: string
+  url: string
+  icon?: string // image in public/, shown on the Apps page
+  tags?: readonly string[]
+  download?: string // page with every download (e.g. GitHub releases)
+  // Public GitHub repo ("owner/name"): the Apps page reads its latest release and shows
+  // install buttons for the installers it finds there
+  releases?: string
+  snapStore?: string // Snap Store name: links to the store instead of the raw .snap file
+}
+
+// Side projects m0tz can talk about, also listed on the Apps page (newest first).
+// Keep each summary to what the project actually does.
+export const projects: readonly Project[] = [
+  {
+    name: 'OkNetwork (knet)',
+    summary:
+      'A desktop app that watches remote job boards and sends a notification when a new posting matches your skills, desired roles, experience and location. Scores every job 0–100 and tracks your applications on a board.',
+    url: 'https://github.com/cagustinenriquez/knet',
+    icon: '/apps/knet.png',
+    tags: ['Electron', 'Desktop', 'Linux', 'macOS'],
+    download: 'https://github.com/cagustinenriquez/knet/releases/latest',
+    releases: 'cagustinenriquez/knet',
+    snapStore: 'oknetwork',
+  },
   {
     name: 'django-register-tags',
     summary: 'A VS Code extension that makes registering Django models in the admin quick and easy.',
     url: 'https://github.com/agustinenriquez/django-register-tags',
-  },
-  {
-    name: 'Vocalica',
-    summary: 'An AI voice cloning service: upload a voice sample, type some text, and hear it in that voice. Built with React and FastAPI, focused on Argentinian Spanish.',
-    url: 'https://github.com/cagustinenriquez/vocalica',
-  },
-  {
-    name: 'ReaperGPT',
-    summary: 'An AI agent for the REAPER music DAW: describe what you want in plain language, a FastAPI service plans the steps, and a Lua script carries them out on the tracks.',
-    url: 'https://github.com/cagustinenriquez/reapergpt',
+    tags: ['VS Code', 'Django'],
   },
   {
     name: 'Simple Staircase Designer',
     summary: 'A small tool for designing staircases.',
     url: 'https://github.com/cagustinenriquez/simple-staircase-designer',
   },
-] as const
+]

@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import RecruiterList from './pages/RecruiterList'
 import RecruiterProfile from './pages/RecruiterProfile'
 import RecruiterAdmin from './pages/RecruiterAdmin'
+import Apps from './pages/Apps'
 import { Navbar } from './components/Navbar'
 import { CyberCity } from './components/CyberCity'
 import { M0tz } from './components/M0tz'
@@ -157,6 +158,7 @@ function AppRoutes({ onContactClick }: { onContactClick: () => void }) {
   return (
     <Routes>
       <Route path="/" element={<HomePage onContactClick={onContactClick} />} />
+      <Route path="/apps" element={<Apps />} />
       <Route path="/blog" element={<BlogList />} />
       <Route path="/blog/login" element={<Login />} />
       <Route path="/admin" element={<AdminDashboard />} />
