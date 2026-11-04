@@ -26,7 +26,7 @@
   gap: 1rem 2rem;
 }
 
-.admin-actions {
+.admin-header-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -319,6 +319,17 @@ textarea.admin-input {
 
 .admin-table .admin-actions {
   justify-content: center;
+}
+
+.admin-table .admin-name-link {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.admin-table .admin-name-link:hover,
+.admin-table .admin-name-link:focus-visible {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(45, 226, 230, 0.6);
 }
 
 .admin-num {
@@ -628,8 +639,8 @@ select.admin-input option {
   }
 
   .admin-header > .blog-btn,
-  .admin-actions,
-  .admin-actions > .blog-btn {
+  .admin-header-actions,
+  .admin-header-actions > .blog-btn {
     width: 100%;
   }
 }

@@ -63,7 +63,7 @@ export function AdminDashboard() {
             <h1 className="admin-title">Spellbook Manager</h1>
             <p className="admin-subtitle">Manage your grimoire of posts</p>
           </div>
-          <div className="admin-actions">
+          <div className="admin-header-actions">
             <Link to="/blog/create" className="blog-btn blog-btn-primary">
               <Plus size={18} />
               New Post

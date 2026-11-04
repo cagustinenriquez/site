@@ -432,6 +432,15 @@ test.describe('Recruiters', () => {
       expect(alice?.average_rating).toBe(3.8);
     });
 
+    test('opens a profile from the table', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/admin/recruiters');
+
+      await page.locator('tr', { hasText: 'Bob Jones' }).locator('a:has-text("Bob Jones")').click();
+      await expect(page).toHaveURL(/\/recruiters\/2$/);
+      await expect(page.locator('text=Ghosted after the final round')).toBeVisible();
+    });
+
     test('deletes a recruiter', async ({ page }) => {
       const api = await useFakeApi(page);
       await visitLoggedIn(page, '/admin/recruiters');
