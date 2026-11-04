@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, type CreateRecruiterPayload, type UpdateRecruiterPayload } from '@/lib/api'
 import { Trash2, Edit2, Plus } from 'lucide-react'
@@ -346,7 +346,11 @@ export function RecruiterAdmin() {
                   <tbody>
                     {recruiters.map((recruiter) => (
                       <tr key={recruiter.id}>
-                        <td className="is-name">{recruiter.name}</td>
+                        <td className="is-name">
+                          <Link to={`/recruiters/${recruiter.id}`} className="admin-name-link">
+                            {recruiter.name}
+                          </Link>
+                        </td>
                         <td>{recruiter.company}</td>
                         <td className="is-small">{recruiter.email}</td>
                         <td className={`is-center admin-num ${recruiter.reputation >= 0 ? 'is-good' : 'is-bad'}`}>

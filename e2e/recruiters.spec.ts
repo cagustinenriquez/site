@@ -216,6 +216,23 @@ async function visitLoggedIn(page: Page, path: string) {
   await expect(page).toHaveURL(new RegExp(`${path}$`));
 }
 
+/** Log in and open /admin, with blog posts stubbed so they stay off the real backend */
+async function openDashboard(page: Page) {
+  await page.route(
+    (url) => url.pathname === '/posts',
+    (route) =>
+      route.request().resourceType() === 'document'
+        ? route.fallback()
+        : route.fulfill({
+            contentType: 'application/json',
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ posts: [], total: 0, page: 1, limit: 10 }),
+          }),
+  );
+  await visitLoggedIn(page, '/recruiters');
+  await page.goto('/admin');
+}
+
 function formField(page: Page, label: string) {
   return page.locator(`div:has(> label:text-is("${label}"))`).locator('input, textarea');
 }
@@ -305,23 +322,28 @@ test.describe('Recruiters', () => {
 
     test('the admin dashboard links to the add form', async ({ page }) => {
       await useFakeApi(page);
-      // The dashboard also lists blog posts; keep that off the real backend
-      await page.route(
-        (url) => url.pathname === '/posts',
-        (route) =>
-          route.request().resourceType() === 'document'
-            ? route.fallback()
-            : route.fulfill({
-                contentType: 'application/json',
-                headers: { 'Access-Control-Allow-Origin': '*' },
-                body: JSON.stringify({ posts: [], total: 0, page: 1, limit: 10 }),
-              }),
-      );
-      await visitLoggedIn(page, '/recruiters');
-      await page.goto('/admin');
+      await openDashboard(page);
       await expect(page.locator('a:has-text("New Post")')).toBeVisible();
       await page.locator('a:has-text("Add Recruiter")').click();
       await expect(page.locator('h2:has-text("Add New Recruiter")')).toBeVisible();
+    });
+  });
+
+  test.describe('Admin dashboard totals', () => {
+    test('shows total recruiters and opens the list', async ({ page }) => {
+      await useFakeApi(page);
+      await openDashboard(page);
+      const card = page.locator('a', { hasText: 'Total recruiters' });
+      await expect(card).toContainText('3');
+      await card.click();
+      await expect(page).toHaveURL(/\/recruiters$/);
+    });
+
+    test('total posts opens the blog', async ({ page }) => {
+      await useFakeApi(page);
+      await openDashboard(page);
+      await page.locator('a', { hasText: 'Total posts' }).click();
+      await expect(page).toHaveURL(/\/blog$/);
     });
   });
 
@@ -430,6 +452,15 @@ test.describe('Recruiters', () => {
       const alice = api.recruiters.find((r) => r.id === '1');
       expect(alice?.total_placements).toBe(4);
       expect(alice?.average_rating).toBe(3.8);
+    });
+
+    test('opens a profile from the table', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/admin/recruiters');
+
+      await page.locator('tr', { hasText: 'Bob Jones' }).locator('a:has-text("Bob Jones")').click();
+      await expect(page).toHaveURL(/\/recruiters\/2$/);
+      await expect(page.locator('text=Ghosted after the final round')).toBeVisible();
     });
 
     test('deletes a recruiter', async ({ page }) => {
