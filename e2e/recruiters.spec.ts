@@ -39,6 +39,14 @@ function makeRecruiter(id: number, fields: Partial<Recruiter>): Recruiter {
   };
 }
 
+interface Comment {
+  id: string;
+  recruiter_id: string;
+  author: string;
+  body: string;
+  created_at: string;
+}
+
 /**
  * In-memory stand-in for the backend's /auth and /recruiters endpoints.
  * Mirrors the real API: recruiter reads and writes need a valid access token.
@@ -50,6 +58,12 @@ class FakeApi {
     makeRecruiter(3, { name: 'Carol White', company: 'Acme', reputation: 1, total_placements: 7, average_rating: 3.0 }),
   ];
   private nextId = 4;
+  comments: Comment[] = [
+    { id: '1', recruiter_id: '2', author: USERNAME, body: 'Never sent feedback', created_at: '2026-10-29T09:30:00' },
+  ];
+  private nextCommentId = 2;
+  /** Set to false to simulate a backend that has no comment endpoints yet */
+  commentsEnabled = true;
   private validAccessTokens = new Set<string>();
   private tokenCounter = 0;
   /** Set to true to simulate the backend no longer accepting the user's tokens */
@@ -131,6 +145,33 @@ class FakeApi {
       return json(200, recruiter);
     }
 
+    const commentsMatch = path.match(/^\/recruiters\/(\w+)\/comments(?:\/(\w+))?$/);
+    if (commentsMatch && this.commentsEnabled) {
+      const [, recruiterId, commentId] = commentsMatch;
+      if (!this.recruiters.some((r) => r.id === recruiterId)) return json(404, { detail: 'Recruiter not found' });
+      if (!commentId && method === 'GET') {
+        return json(200, this.comments.filter((c) => c.recruiter_id === recruiterId).reverse());
+      }
+      if (!commentId && method === 'POST') {
+        if (!String(body?.body ?? '').trim()) return json(422, { detail: 'Comment cannot be empty' });
+        const comment = {
+          id: String(this.nextCommentId++),
+          recruiter_id: recruiterId,
+          author: USERNAME,
+          body: String(body.body).trim(),
+          created_at: '2026-11-04T10:00:00',
+        };
+        this.comments.push(comment);
+        return json(200, comment);
+      }
+      if (commentId && method === 'DELETE') {
+        const index = this.comments.findIndex((c) => c.id === commentId && c.recruiter_id === recruiterId);
+        if (index === -1) return json(404, { detail: 'Comment not found' });
+        this.comments.splice(index, 1);
+        return json(200, { detail: 'Comment deleted successfully' });
+      }
+    }
+
     const match = path.match(/^\/recruiters\/(\w+)$/);
     if (match) {
       const index = this.recruiters.findIndex((r) => r.id === match[1]);
@@ -146,7 +187,8 @@ class FakeApi {
       }
     }
 
-    return json(404, { detail: 'Not found' });
+    // Same body FastAPI sends when no route matches
+    return json(404, { detail: 'Not Found' });
   }
 }
 
@@ -249,6 +291,82 @@ test.describe('Recruiters', () => {
 
       await page.locator('button:has-text("Back to Recruiters")').click();
       await expect(page).toHaveURL(/\/recruiters$/);
+    });
+  });
+
+  test.describe('Add Recruiter links', () => {
+    test('the list page opens the add form', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters');
+      await page.locator('a:has-text("Add Recruiter")').click();
+      await expect(page).toHaveURL(/\/admin\/recruiters\?new=1$/);
+      await expect(page.locator('h2:has-text("Add New Recruiter")')).toBeVisible();
+    });
+
+    test('the admin dashboard links to the add form', async ({ page }) => {
+      await useFakeApi(page);
+      // The dashboard also lists blog posts; keep that off the real backend
+      await page.route(
+        (url) => url.pathname === '/posts',
+        (route) =>
+          route.request().resourceType() === 'document'
+            ? route.fallback()
+            : route.fulfill({
+                contentType: 'application/json',
+                headers: { 'Access-Control-Allow-Origin': '*' },
+                body: JSON.stringify({ posts: [], total: 0, page: 1, limit: 10 }),
+              }),
+      );
+      await visitLoggedIn(page, '/recruiters');
+      await page.goto('/admin');
+      await expect(page.locator('a:has-text("New Post")')).toBeVisible();
+      await page.locator('a:has-text("Add Recruiter")').click();
+      await expect(page.locator('h2:has-text("Add New Recruiter")')).toBeVisible();
+    });
+  });
+
+  test.describe('Comments', () => {
+    test('shows existing comments and posts a new one', async ({ page }) => {
+      const api = await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters/2');
+      await expect(page.locator('.rec-comment')).toHaveText([/Never sent feedback/]);
+
+      await page.locator('#rec-comment-input').fill('  Pushed a lowball offer  ');
+      await page.locator('button:has-text("Post")').click();
+
+      await expect(page.locator('.rec-comment-body')).toHaveText(['Pushed a lowball offer', 'Never sent feedback']);
+      await expect(page.locator('#rec-comment-input')).toHaveValue('');
+      expect(api.comments.filter((c) => c.recruiter_id === '2')).toHaveLength(2);
+    });
+
+    test('cannot post an empty comment', async ({ page }) => {
+      await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters/1');
+      await expect(page.locator('text=No comments yet.')).toBeVisible();
+      await page.locator('#rec-comment-input').fill('   ');
+      await expect(page.locator('button:has-text("Post")')).toBeDisabled();
+    });
+
+    test('deletes a comment after confirming', async ({ page }) => {
+      const api = await useFakeApi(page);
+      await visitLoggedIn(page, '/recruiters/2');
+
+      await page.locator('button[aria-label="Delete comment"]').click();
+      await page.locator('.rec-comment-actions button:has-text("Cancel")').click();
+      await expect(page.locator('.rec-comment')).toHaveCount(1);
+
+      await page.locator('button[aria-label="Delete comment"]').click();
+      await page.locator('.rec-comment-actions button:has-text("Delete")').click();
+      await expect(page.locator('text=No comments yet.')).toBeVisible();
+      expect(api.comments).toHaveLength(0);
+    });
+
+    test('explains when the server has no comments yet', async ({ page }) => {
+      const api = await useFakeApi(page);
+      api.commentsEnabled = false;
+      await visitLoggedIn(page, '/recruiters/2');
+      await expect(page.locator("text=Comments aren't available yet")).toBeVisible();
+      await expect(page.locator('#rec-comment-input')).toHaveCount(0);
     });
   });
 

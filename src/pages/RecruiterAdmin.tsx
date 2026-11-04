@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, type CreateRecruiterPayload, type UpdateRecruiterPayload } from '@/lib/api'
 import { Trash2, Edit2, Plus } from 'lucide-react'
@@ -19,7 +20,9 @@ export function RecruiterAdmin() {
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const limit = 20
-  const [isFormOpen, setIsFormOpen] = useState(false)
+  // ?new=1 (from the "Add Recruiter" links) opens the form right away
+  const [searchParams] = useSearchParams()
+  const [isFormOpen, setIsFormOpen] = useState(searchParams.get('new') === '1')
   const [editingId, setEditingId] = useState<number | string | null>(null)
   const [formData, setFormData] = useState<CreateRecruiterPayload>({
     name: '',
