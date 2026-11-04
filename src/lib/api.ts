@@ -76,6 +76,25 @@ interface UpdateRecruiterPayload {
   average_rating?: number
 }
 
+interface RecruiterComment {
+  id: string
+  recruiter_id: string
+  author: string
+  body: string
+  created_at: string
+}
+
+/** Error from the API, with the HTTP status so callers can tell a 404 apart */
+export class ApiError extends Error {
+  status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
 export const SESSION_EXPIRED_MESSAGE = 'Session expired. Please log in again.'
 
 // Older builds could store the string "undefined" when the API sent no token
@@ -146,7 +165,7 @@ class ApiClient {
         (typeof error.error === 'string' && error.error) ||
         (response.status === 429 ? 'Too many requests. Please wait a minute and try again.' : '') ||
         `HTTP ${response.status}`
-      throw new Error(message)
+      throw new ApiError(message, response.status)
     }
 
     return response.json()
@@ -257,6 +276,23 @@ class ApiClient {
       method: 'DELETE',
     })
   }
+
+  async getRecruiterComments(recruiterId: number | string): Promise<RecruiterComment[]> {
+    return this.request(`/recruiters/${recruiterId}/comments`)
+  }
+
+  async addRecruiterComment(recruiterId: number | string, body: string): Promise<RecruiterComment> {
+    return this.request(`/recruiters/${recruiterId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ body }),
+    })
+  }
+
+  async deleteRecruiterComment(recruiterId: number | string, commentId: string): Promise<void> {
+    await this.request(`/recruiters/${recruiterId}/comments/${commentId}`, {
+      method: 'DELETE',
+    })
+  }
 }
 
 export const api = new ApiClient()
@@ -268,4 +304,5 @@ export type {
   RecruitersResponse,
   CreateRecruiterPayload,
   UpdateRecruiterPayload,
+  RecruiterComment,
 }

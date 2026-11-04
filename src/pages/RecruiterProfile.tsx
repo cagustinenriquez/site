@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { ArrowLeft } from 'lucide-react'
 import { CyberCity } from '@/components/CyberCity'
+import { RecruiterComments } from '@/components/RecruiterComments'
 import './blog.css'
 import './admin.css'
 
@@ -113,6 +114,8 @@ export function RecruiterProfile() {
                 </div>
               </dl>
             </section>
+
+            <RecruiterComments recruiterId={String(recruiter.id)} />
           </>
         )}
       </main>

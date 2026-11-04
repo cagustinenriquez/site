@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import { Users } from 'lucide-react'
+import { Users, Plus } from 'lucide-react'
 import { CyberCity } from '@/components/CyberCity'
 import './blog.css'
 import './admin.css'
@@ -36,10 +36,16 @@ export function RecruiterList() {
     <>
       <CyberCity calm />
       <main className="blog-shell admin-shell">
-        <header>
-          <p className="section-kicker">Field notes</p>
-          <h1 className="admin-title">Recruiters</h1>
-          <p className="admin-subtitle">Browse and connect with top recruiters in your industry</p>
+        <header className="admin-header">
+          <div>
+            <p className="section-kicker">Field notes</p>
+            <h1 className="admin-title">Recruiters</h1>
+            <p className="admin-subtitle">Browse and connect with top recruiters in your industry</p>
+          </div>
+          <Link to="/admin/recruiters?new=1" className="blog-btn blog-btn-primary">
+            <Plus size={18} />
+            Add Recruiter
+          </Link>
         </header>
 
         <div className="rec-filters">
