@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import { Trash2, Edit2, Plus, FileText, BookOpen } from 'lucide-react'
+import { Trash2, Edit2, Plus, FileText, BookOpen, Users } from 'lucide-react'
 import { CyberCity } from '@/components/CyberCity'
 import './blog.css'
 import './admin.css'
@@ -20,6 +20,13 @@ export function AdminDashboard() {
   const { data, isLoading, error, isError, refetch } = useQuery({
     queryKey: ['admin-posts'],
     queryFn: () => api.getPosts(1, 100),
+    enabled: api.isAuthenticated(),
+  })
+
+  // Only the total is needed, so ask for a single row
+  const { data: recruiterData } = useQuery({
+    queryKey: ['admin-recruiter-total'],
+    queryFn: () => api.getRecruiters(1, 1),
     enabled: api.isAuthenticated(),
   })
 
@@ -75,14 +82,25 @@ export function AdminDashboard() {
           </div>
         </header>
 
-        <div className="blog-glass admin-panel admin-stat">
-          <div className="admin-stat-icon" aria-hidden="true">
-            <BookOpen size={24} />
-          </div>
-          <div>
-            <p className="admin-stat-label">Total posts</p>
-            <p className="admin-stat-value">{totalPosts}</p>
-          </div>
+        <div className="admin-stats">
+          <Link to="/blog" className="blog-glass admin-panel admin-stat is-link">
+            <div className="admin-stat-icon" aria-hidden="true">
+              <BookOpen size={24} />
+            </div>
+            <div>
+              <p className="admin-stat-label">Total posts</p>
+              <p className="admin-stat-value">{totalPosts}</p>
+            </div>
+          </Link>
+          <Link to="/recruiters" className="blog-glass admin-panel admin-stat is-link">
+            <div className="admin-stat-icon" aria-hidden="true">
+              <Users size={24} />
+            </div>
+            <div>
+              <p className="admin-stat-label">Total recruiters</p>
+              <p className="admin-stat-value">{recruiterData ? recruiterData.total : '–'}</p>
+            </div>
+          </Link>
         </div>
 
         {isError && <div className="blog-error">{error instanceof Error ? error.message : 'Failed to load posts'}</div>}

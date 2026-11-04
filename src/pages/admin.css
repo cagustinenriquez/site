@@ -98,6 +98,29 @@
   gap: 1.25rem;
 }
 
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.admin-stat.is-link {
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-stat.is-link:hover,
+.admin-stat.is-link:focus-visible {
+  border-color: var(--border-strong);
+  box-shadow:
+    var(--shadow),
+    0 12px 40px -12px rgba(45, 226, 230, 0.45);
+  outline: none;
+}
+
 .admin-stat-icon {
   display: grid;
   place-items: center;
