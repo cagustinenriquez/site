@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import { Trash2, Edit2, Plus, FileText, BookOpen, Users } from 'lucide-react'
+import { Trash2, Edit2, Plus, FileText, BookOpen, Users, Code2 } from 'lucide-react'
 import { CyberCity } from '@/components/CyberCity'
 import './blog.css'
 import './admin.css'
@@ -28,6 +28,13 @@ export function AdminDashboard() {
     queryKey: ['admin-recruiter-total'],
     queryFn: () => api.getRecruiters(1, 1),
     enabled: api.isAuthenticated(),
+  })
+
+  const { data: interviewerData } = useQuery({
+    queryKey: ['admin-interviewer-total'],
+    queryFn: () => api.getInterviewers(1, 1),
+    enabled: api.isAuthenticated(),
+    retry: false,
   })
 
   const handleDelete = async (slug: string) => {
@@ -79,6 +86,10 @@ export function AdminDashboard() {
               <Plus size={18} />
               Add Recruiter
             </Link>
+            <Link to="/admin/interviewers?new=1" className="blog-btn blog-btn-primary">
+              <Plus size={18} />
+              Add Interviewer
+            </Link>
           </div>
         </header>
 
@@ -99,6 +110,15 @@ export function AdminDashboard() {
             <div>
               <p className="admin-stat-label">Total recruiters</p>
               <p className="admin-stat-value">{recruiterData ? recruiterData.total : '–'}</p>
+            </div>
+          </Link>
+          <Link to="/interviewers" className="blog-glass admin-panel admin-stat is-link">
+            <div className="admin-stat-icon" aria-hidden="true">
+              <Code2 size={24} />
+            </div>
+            <div>
+              <p className="admin-stat-label">Total interviewers</p>
+              <p className="admin-stat-value">{interviewerData ? interviewerData.total : '–'}</p>
             </div>
           </Link>
         </div>

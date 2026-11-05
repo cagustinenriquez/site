@@ -18,6 +18,9 @@ import AdminDashboard from './pages/AdminDashboard'
 import RecruiterList from './pages/RecruiterList'
 import RecruiterProfile from './pages/RecruiterProfile'
 import RecruiterAdmin from './pages/RecruiterAdmin'
+import InterviewerList from './pages/InterviewerList'
+import InterviewerProfile from './pages/InterviewerProfile'
+import InterviewerAdmin from './pages/InterviewerAdmin'
 import Apps from './pages/Apps'
 import { Navbar } from './components/Navbar'
 import { CyberCity } from './components/CyberCity'
@@ -187,6 +190,31 @@ function AppRoutes({ onContactClick }: { onContactClick: () => void }) {
         element={
           <ProtectedRoute>
             <RecruiterAdmin />
+          </ProtectedRoute>
+        }
+      />
+      {/* Same for technical interviewers */}
+      <Route
+        path="/interviewers"
+        element={
+          <ProtectedRoute>
+            <InterviewerList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interviewers/:id"
+        element={
+          <ProtectedRoute>
+            <InterviewerProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/interviewers"
+        element={
+          <ProtectedRoute>
+            <InterviewerAdmin />
           </ProtectedRoute>
         }
       />
