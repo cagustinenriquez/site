@@ -84,6 +84,60 @@ interface RecruiterComment {
   created_at: string
 }
 
+const INTERVIEW_TYPES = ['coding', 'system_design', 'behavioral', 'take_home', 'pair_programming', 'other'] as const
+type InterviewType = (typeof INTERVIEW_TYPES)[number]
+
+const INTERVIEW_TYPE_LABELS: Record<InterviewType, string> = {
+  coding: 'Coding',
+  system_design: 'System design',
+  behavioral: 'Behavioral',
+  take_home: 'Take-home',
+  pair_programming: 'Pair programming',
+  other: 'Other',
+}
+
+interface Interviewer {
+  id: number | string
+  name: string
+  company: string
+  role?: string
+  email?: string
+  linkedin?: string
+  interview_types: InterviewType[]
+  rating: number
+  notes?: string
+  created_at?: string
+  updated_at?: string
+}
+
+interface InterviewersResponse {
+  interviewers: Interviewer[]
+  total: number
+  page: number
+  limit: number
+}
+
+interface CreateInterviewerPayload {
+  name: string
+  company: string
+  role?: string
+  email?: string
+  linkedin?: string
+  interview_types?: InterviewType[]
+  rating?: number
+  notes?: string
+}
+
+type UpdateInterviewerPayload = Partial<CreateInterviewerPayload>
+
+interface InterviewerComment {
+  id: string
+  interviewer_id: string
+  author: string
+  body: string
+  created_at: string
+}
+
 /** Error from the API, with the HTTP status so callers can tell a 404 apart */
 export class ApiError extends Error {
   status: number
@@ -293,9 +347,68 @@ class ApiClient {
       method: 'DELETE',
     })
   }
+
+  async getInterviewers(
+    page = 1,
+    limit = 10,
+    sort?: string,
+    search?: string,
+    type?: InterviewType
+  ): Promise<InterviewersResponse> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    })
+    if (sort) params.append('sort', sort)
+    if (search) params.append('search', search)
+    if (type) params.append('type', type)
+    return this.request(`/interviewers?${params}`)
+  }
+
+  async getInterviewer(id: number | string): Promise<Interviewer> {
+    return this.request(`/interviewers/${id}`)
+  }
+
+  async createInterviewer(interviewer: CreateInterviewerPayload): Promise<Interviewer> {
+    return this.request('/interviewers', {
+      method: 'POST',
+      body: JSON.stringify(interviewer),
+    })
+  }
+
+  async updateInterviewer(id: number | string, interviewer: UpdateInterviewerPayload): Promise<Interviewer> {
+    return this.request(`/interviewers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(interviewer),
+    })
+  }
+
+  async deleteInterviewer(id: number | string): Promise<void> {
+    await this.request(`/interviewers/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async getInterviewerComments(interviewerId: number | string): Promise<InterviewerComment[]> {
+    return this.request(`/interviewers/${interviewerId}/comments`)
+  }
+
+  async addInterviewerComment(interviewerId: number | string, body: string): Promise<InterviewerComment> {
+    return this.request(`/interviewers/${interviewerId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ body }),
+    })
+  }
+
+  async deleteInterviewerComment(interviewerId: number | string, commentId: string): Promise<void> {
+    await this.request(`/interviewers/${interviewerId}/comments/${commentId}`, {
+      method: 'DELETE',
+    })
+  }
 }
 
 export const api = new ApiClient()
+export { INTERVIEW_TYPES, INTERVIEW_TYPE_LABELS }
 export type {
   Post,
   PostsResponse,
@@ -305,4 +418,10 @@ export type {
   CreateRecruiterPayload,
   UpdateRecruiterPayload,
   RecruiterComment,
+  InterviewType,
+  Interviewer,
+  InterviewersResponse,
+  CreateInterviewerPayload,
+  UpdateInterviewerPayload,
+  InterviewerComment,
 }

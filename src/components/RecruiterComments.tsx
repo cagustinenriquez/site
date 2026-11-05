@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { api, ApiError, type RecruiterComment } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
 import { MessageSquare, Send, Trash2 } from 'lucide-react'
 
 const MAX_LENGTH = 2000
@@ -17,30 +17,45 @@ function formatDate(value: string) {
     : date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
 }
 
-export function RecruiterComments({ recruiterId }: { recruiterId: string }) {
+interface Comment {
+  id: string
+  author: string
+  body: string
+  created_at: string
+}
+
+interface CommentsProps {
+  queryKey: readonly unknown[]
+  load: () => Promise<Comment[]>
+  add: (body: string) => Promise<Comment>
+  remove: (commentId: string) => Promise<void>
+  placeholder: string
+}
+
+/** Comment thread shared by recruiter and interviewer profiles */
+export function Comments({ queryKey, load, add, remove, placeholder }: CommentsProps) {
   const queryClient = useQueryClient()
-  const queryKey = ['recruiter-comments', recruiterId]
   const [draft, setDraft] = useState('')
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
 
   const { data: comments = [], isLoading, error, isError } = useQuery({
     queryKey,
-    queryFn: () => api.getRecruiterComments(recruiterId),
+    queryFn: load,
     retry: (count, err) => !isMissingEndpoint(err) && count < 2,
   })
 
   const addMutation = useMutation({
-    mutationFn: (body: string) => api.addRecruiterComment(recruiterId, body),
+    mutationFn: add,
     onSuccess: (created) => {
-      queryClient.setQueryData<RecruiterComment[]>(queryKey, (old = []) => [created, ...old])
+      queryClient.setQueryData<Comment[]>(queryKey, (old = []) => [created, ...old])
       setDraft('')
     },
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (commentId: string) => api.deleteRecruiterComment(recruiterId, commentId),
+    mutationFn: remove,
     onSuccess: (_, commentId) => {
-      queryClient.setQueryData<RecruiterComment[]>(queryKey, (old = []) => old.filter((c) => c.id !== commentId))
+      queryClient.setQueryData<Comment[]>(queryKey, (old = []) => old.filter((c) => c.id !== commentId))
       setConfirmingId(null)
     },
   })
@@ -72,7 +87,7 @@ export function RecruiterComments({ recruiterId }: { recruiterId: string }) {
               className="admin-input"
               rows={3}
               maxLength={MAX_LENGTH}
-              placeholder="How was working with this recruiter?"
+              placeholder={placeholder}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
@@ -159,6 +174,30 @@ export function RecruiterComments({ recruiterId }: { recruiterId: string }) {
         </>
       )}
     </section>
+  )
+}
+
+export function RecruiterComments({ recruiterId }: { recruiterId: string }) {
+  return (
+    <Comments
+      queryKey={['recruiter-comments', recruiterId]}
+      load={() => api.getRecruiterComments(recruiterId)}
+      add={(body) => api.addRecruiterComment(recruiterId, body)}
+      remove={(commentId) => api.deleteRecruiterComment(recruiterId, commentId)}
+      placeholder="How was working with this recruiter?"
+    />
+  )
+}
+
+export function InterviewerComments({ interviewerId }: { interviewerId: string }) {
+  return (
+    <Comments
+      queryKey={['interviewer-comments', interviewerId]}
+      load={() => api.getInterviewerComments(interviewerId)}
+      add={(body) => api.addInterviewerComment(interviewerId, body)}
+      remove={(commentId) => api.deleteInterviewerComment(interviewerId, commentId)}
+      placeholder="How was the interview with them?"
+    />
   )
 }
 

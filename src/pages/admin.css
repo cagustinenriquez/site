@@ -667,3 +667,65 @@ select.admin-input option {
     width: 100%;
   }
 }
+
+/* ---- Technical interviewers ---- */
+.int-filters {
+  grid-template-columns: 1fr 13rem 11rem;
+}
+
+.int-types {
+  margin-bottom: 1rem;
+}
+
+.rec-profile-head .int-types {
+  margin: 1rem 0 0;
+}
+
+.int-profile-stats {
+  grid-template-columns: 1fr;
+}
+
+.int-type-picker {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.int-type-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.int-type-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.int-type-option input {
+  accent-color: var(--accent);
+}
+
+.int-type-option.is-on {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.int-type-option:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .int-filters {
+    grid-template-columns: 1fr;
+  }
+}

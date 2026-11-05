@@ -194,9 +194,10 @@ class FakeApi {
 
 async function useFakeApi(page: Page): Promise<FakeApi> {
   const api = new FakeApi();
-  // Only API calls: page navigations to /recruiters on the dev server pass through
+  // Only API calls: page navigations to /recruiters on the dev server pass through.
+  // /interviewers is caught too (and answered 404) so the dashboard stays off the real backend.
   await page.route(
-    (url) => /^\/(auth|recruiters)(\/|$)/.test(url.pathname),
+    (url) => /^\/(auth|recruiters|interviewers)(\/|$)/.test(url.pathname),
     (route) => (route.request().resourceType() === 'document' ? route.fallback() : api.handle(route)),
   );
   return api;
